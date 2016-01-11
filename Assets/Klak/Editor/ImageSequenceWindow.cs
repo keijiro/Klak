@@ -81,8 +81,11 @@ namespace Klak
         [MenuItem ("Window/Image Sequence")]
         static void Init()
         {
-            var instance = EditorWindow.GetWindow<ImageSequenceWindow>("Image Sequence");
-            instance.Show();
+            var instance = CreateInstance<ImageSequenceWindow>();
+            instance.minSize = instance.maxSize =
+                new Vector2(20, 6) * EditorGUIUtility.singleLineHeight;
+            instance.titleContent = new GUIContent("Image Sequence");
+            instance.ShowUtility();
         }
 
         void OnEnable()
@@ -105,7 +108,7 @@ namespace Klak
 
         void OnGUI()
         {
-            _frameRate = EditorGUILayout.IntSlider("Frame Rate", _frameRate, 1, 60);
+            _frameRate = EditorGUILayout.IntSlider("Frame Rate", _frameRate, 1, 100);
             _superSampling = EditorGUILayout.IntSlider("Supersampling", _superSampling, 1, 4);
             _autoRecord = EditorGUILayout.Toggle("Auto Recording", _autoRecord);
 
