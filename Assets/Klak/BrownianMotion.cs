@@ -45,42 +45,42 @@ namespace Klak
 
         #region Public Properties
 
-        float positionFrequency {
+        public float positionFrequency {
             get { return _positionFrequency; }
             set { _positionFrequency = value; }
         }
 
-        float rotationFrequency {
+        public float rotationFrequency {
             get { return _rotationFrequency; }
             set { _rotationFrequency = value; }
         }
 
-        float positionAmplitude {
+        public float positionAmplitude {
             get { return _positionAmplitude; }
             set { _positionAmplitude = value; }
         }
 
-        float rotationAmplitude {
+        public float rotationAmplitude {
             get { return _rotationAmplitude; }
             set { _rotationAmplitude = value; }
         }
 
-        Vector3 positionScale {
+        public Vector3 positionScale {
             get { return _positionScale; }
             set { _positionScale = value; }
         }
 
-        Vector3 rotationScale {
+        public Vector3 rotationScale {
             get { return _rotationScale; }
             set { _rotationScale = value; }
         }
 
-        int positionFractalLevel {
+        public int positionFractalLevel {
             get { return _positionFractalLevel; }
             set { _positionFractalLevel = value; }
         }
 
-        int rotationFractalLevel {
+        public int rotationFractalLevel {
             get { return _rotationFractalLevel; }
             set { _rotationFractalLevel = value; }
         }
