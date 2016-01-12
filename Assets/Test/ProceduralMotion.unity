@@ -245,7 +245,7 @@ GameObject:
   - 23: {fileID: 822673827}
   - 114: {fileID: 822673826}
   m_Layer: 0
-  m_Name: Teapot
+  m_Name: Teapot Brownian
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -329,7 +329,7 @@ GameObject:
   - 23: {fileID: 1350824608}
   - 114: {fileID: 1350824607}
   m_Layer: 0
-  m_Name: Teapot
+  m_Name: Teapot Constant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -346,16 +346,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db4c4a72731246b2b1ad1e73178c04e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _position:
-    _basis: 0
-    _basisVector: {x: 0, y: 1, z: 0}
-    _speed: 1
-    _randomScale: 0
-  _rotation:
-    _basis: 2
-    _basisVector: {x: 0, y: 1, z: 0}
-    _speed: 30
-    _randomScale: 0
+  _translationMode: 3
+  _translationVector: {x: 0, y: 0, z: 1}
+  _translationSpeed: 1
+  _rotationMode: 4
+  _rotationAxis: {x: 1, y: 1, z: 0}
+  _rotationSpeed: 30
   _useLocalCoordinate: 1
 --- !u!23 &1350824608
 MeshRenderer:

@@ -26,122 +26,73 @@ using UnityEditor;
 
 namespace Klak
 {
-    // custom property drawer for MotionElement
-    [CustomPropertyDrawer(typeof(ConstantMotion.MotionElement))]
-    class ConstantMotionElementDrawer : PropertyDrawer
-    {
-        static GUIContent[] _basisLabels = {
-            new GUIContent("Off"),
-            new GUIContent("X Axis"),
-            new GUIContent("Y Axis"),
-            new GUIContent("Z Axis"),
-            new GUIContent("Vector"),
-            new GUIContent("Random")
-        };
-
-        static int[] _basisValues = {
-            0,
-            (int)ConstantMotion.MotionBasis.XAxis,
-            (int)ConstantMotion.MotionBasis.YAxis,
-            (int)ConstantMotion.MotionBasis.ZAxis,
-            (int)ConstantMotion.MotionBasis.Vector,
-            (int)ConstantMotion.MotionBasis.Random
-        };
-
-        static GUIContent _textSpeed = new GUIContent("Speed");
-        static GUIContent _textRandomScale = new GUIContent("Random Scale");
-
-        static int GetExpansionLevel(SerializedProperty property)
-        {
-            var basis = property.FindPropertyRelative("_basis");
-            // fully expand if it has different values
-            if (basis.hasMultipleDifferentValues) return 2;
-            // "Off"
-            if (basis.enumValueIndex == 0) return 0;
-            // fully expand if it's in the vector mode
-            if (basis.enumValueIndex == (int)ConstantMotion.MotionBasis.Vector) return 2;
-            // expand just one level
-            return 1;
-        }
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            var level = GetExpansionLevel(property);
-            var rows = level == 0 ? 1 : 2 + level;
-            return EditorGUIUtility.singleLineHeight * rows +
-                   EditorGUIUtility.standardVerticalSpacing * (rows - 1);
-        }
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            EditorGUI.BeginProperty(position, label, property);
-
-            position.height = EditorGUIUtility.singleLineHeight;
-
-            var rowHeight =
-                EditorGUIUtility.singleLineHeight +
-                EditorGUIUtility.standardVerticalSpacing;
-
-            // motion basis selector drop-down
-            var basis = property.FindPropertyRelative("_basis");
-            EditorGUI.IntPopup(position, basis, _basisLabels, _basisValues, label);
-            position.y += rowHeight;
-
-            var level = GetExpansionLevel(property);
-            if (level > 0)
-            {
-                // indent
-                position.x += 16;
-                position.width -= 16;
-                EditorGUIUtility.labelWidth -= 16;
-
-                if (level == 2)
-                {
-                    // vector box
-                    var basisVector = property.FindPropertyRelative("_basisVector");
-                    EditorGUI.PropertyField(position, basisVector, GUIContent.none);
-                    position.y += rowHeight;
-                }
-
-                // speed box
-                var speed = property.FindPropertyRelative("_speed");
-                EditorGUI.PropertyField(position, speed, _textSpeed);
-                position.y +=
-                    EditorGUIUtility.singleLineHeight +
-                    EditorGUIUtility.standardVerticalSpacing;
-
-                // random scale
-                var randomScale = property.FindPropertyRelative("_randomScale");
-                EditorGUI.PropertyField(position, randomScale, _textRandomScale);
-            }
-
-            EditorGUI.EndProperty();
-        }
-    }
-
     [CanEditMultipleObjects]
     [CustomEditor(typeof(ConstantMotion))]
     public class ConstantMotionEditor : Editor
     {
-        SerializedProperty _position;
-        SerializedProperty _rotation;
+        SerializedProperty _translationMode;
+        SerializedProperty _translationVector;
+        SerializedProperty _translationSpeed;
+
+        SerializedProperty _rotationMode;
+        SerializedProperty _rotationAxis;
+        SerializedProperty _rotationSpeed;
+
         SerializedProperty _useLocalCoordinate;
 
         static GUIContent _textLocalCoordinate = new GUIContent("Local Coordinate");
+        static GUIContent _textRotation = new GUIContent("Rotation");
+        static GUIContent _textSpeed = new GUIContent("Speed");
+        static GUIContent _textTranslation = new GUIContent("Translation");
+        static GUIContent _textVector = new GUIContent("Vector");
 
         void OnEnable()
         {
-            _position = serializedObject.FindProperty("_position");
-            _rotation = serializedObject.FindProperty("_rotation");
+            _translationMode = serializedObject.FindProperty("_translationMode");
+            _translationVector = serializedObject.FindProperty("_translationVector");
+            _translationSpeed = serializedObject.FindProperty("_translationSpeed");
+
+            _rotationMode = serializedObject.FindProperty("_rotationMode");
+            _rotationAxis = serializedObject.FindProperty("_rotationAxis");
+            _rotationSpeed = serializedObject.FindProperty("_rotationSpeed");
+
             _useLocalCoordinate = serializedObject.FindProperty("_useLocalCoordinate");
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.PropertyField(_position);
-            EditorGUILayout.PropertyField(_rotation);
+
+            EditorGUILayout.PropertyField(_translationMode, _textTranslation);
+
+            EditorGUI.indentLevel++;
+
+            if (_translationMode.hasMultipleDifferentValues ||
+                _translationMode.enumValueIndex == (int)ConstantMotion.TranslationMode.Vector)
+                EditorGUILayout.PropertyField(_translationVector, _textVector);
+
+            if (_translationMode.hasMultipleDifferentValues ||
+                _translationMode.enumValueIndex != 0)
+                EditorGUILayout.PropertyField(_translationSpeed, _textSpeed);
+
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.PropertyField(_rotationMode, _textRotation);
+
+            EditorGUI.indentLevel++;
+
+            if (_rotationMode.hasMultipleDifferentValues ||
+                _rotationMode.enumValueIndex == (int)ConstantMotion.RotationMode.Vector)
+                EditorGUILayout.PropertyField(_rotationAxis, _textVector);
+
+            if (_rotationMode.hasMultipleDifferentValues ||
+                _rotationMode.enumValueIndex != 0)
+                EditorGUILayout.PropertyField(_rotationSpeed, _textSpeed);
+
+            EditorGUI.indentLevel--;
+
             EditorGUILayout.PropertyField(_useLocalCoordinate, _textLocalCoordinate);
+
             serializedObject.ApplyModifiedProperties();
         }
     }

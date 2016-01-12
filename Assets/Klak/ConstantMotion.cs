@@ -27,70 +27,112 @@ namespace Klak
 {
     public class ConstantMotion : MonoBehaviour
     {
+        #region Nested Classes
+
+        public enum TranslationMode {
+            Off, XAxis, YAxis, ZAxis, Vector, Random
+        };
+
+        public enum RotationMode {
+            Off, XAxis, YAxis, ZAxis, Vector, Random
+        }
+
+        #endregion
+
         #region Editable Properties
 
         [SerializeField]
-        MotionElement _position = new MotionElement(1.0f);
+        TranslationMode _translationMode = TranslationMode.Off;
 
         [SerializeField]
-        MotionElement _rotation = new MotionElement(30.0f);
+        Vector3 _translationVector = Vector3.forward;
+
+        [SerializeField]
+        float _translationSpeed = 1.0f;
+
+        [SerializeField]
+        RotationMode _rotationMode = RotationMode.Off;
+
+        [SerializeField]
+        Vector3 _rotationAxis = Vector3.up;
+
+        [SerializeField]
+        float _rotationSpeed = 30.0f;
 
         [SerializeField]
         bool _useLocalCoordinate = true;
 
         #endregion
 
-        #region Nested Classes
+        #region Public Properties
 
-        public enum MotionBasis {
-            Off, XAxis, YAxis, ZAxis, Vector, Random
-        };
+        public TranslationMode translationMode {
+            get { return _translationMode; }
+            set { _translationMode = value; }
+        }
 
-        [System.Serializable]
-        public class MotionElement
-        {
-            [SerializeField] MotionBasis _basis = MotionBasis.Off;
-            [SerializeField] Vector3 _basisVector = Vector3.up;
-            [SerializeField] float _speed = 1.0f;
-            [SerializeField, Range(0, 1)] float _randomScale = 0.0f;
+        public Vector3 translationVector {
+            get { return _translationVector; }
+            set { _translationVector = value; }
+        }
 
-            Vector3 _randomVector;
-            float _randomScaleFactor;
+        public float translationSpeed {
+            get { return _translationSpeed; }
+            set { _translationSpeed = value; }
+        }
 
-            public MotionElement(float speed)
-            {
-                _speed = speed;
-            }
+        public RotationMode rotationMode {
+            get { return _rotationMode; }
+            set { _rotationMode = value; }
+        }
 
-            public void Initialize()
-            {
-                _randomVector = Random.onUnitSphere;
-                _randomScaleFactor = Random.value;
-            }
+        public Vector3 rotationAxis {
+            get { return _rotationAxis; }
+            set { _rotationAxis = value; }
+        }
 
-            public bool Enabled {
-                get { return _basis != MotionBasis.Off; }
-            }
+        public float rotationSpeed {
+            get { return _rotationSpeed; }
+            set { _rotationSpeed = value; }
+        }
 
-            public Vector3 Vector {
-                get {
-                    switch (_basis)
-                    {
-                        case MotionBasis.XAxis:  return Vector3.right;
-                        case MotionBasis.YAxis:  return Vector3.up;
-                        case MotionBasis.ZAxis:  return Vector3.forward;
-                        case MotionBasis.Vector: return _basisVector;
-                        case MotionBasis.Random: return _randomVector;
-                    }
-                    return Vector3.zero;
+        public bool useLocalCoordinate {
+            get { return _useLocalCoordinate; }
+            set { _useLocalCoordinate = value; }
+        }
+
+        #endregion
+
+        #region Private Variables
+
+        Vector3 _randomVectorT;
+        Vector3 _randomVectorR;
+
+        Vector3 TranslationVector {
+            get {
+                switch (_translationMode)
+                {
+                    case TranslationMode.XAxis:  return Vector3.right;
+                    case TranslationMode.YAxis:  return Vector3.up;
+                    case TranslationMode.ZAxis:  return Vector3.forward;
+                    case TranslationMode.Vector: return _translationVector;
                 }
+                // TranslationMode.Random
+                return _randomVectorT;
             }
+        }
 
-            public float Delta {
-                get {
-                    var scale = (1.0f - _randomScale * _randomScaleFactor);
-                    return _speed * scale * Time.deltaTime;
+        Vector3 RotationVector {
+            get {
+                switch (_rotationMode)
+                {
+                    case RotationMode.XAxis:  return Vector3.right;
+                    case RotationMode.YAxis:  return Vector3.up;
+                    case RotationMode.ZAxis:  return Vector3.forward;
+                    case RotationMode.Vector: return _rotationAxis;
                 }
+                // RotationMode.Random
+                return _randomVectorR;
             }
         }
 
@@ -98,31 +140,35 @@ namespace Klak
 
         #region MonoBehaviour Functions
 
-        void Awake()
+        void Start()
         {
-            _position.Initialize();
-            _rotation.Initialize();
+            _randomVectorT = Random.onUnitSphere;
+            _randomVectorR = Random.onUnitSphere;
         }
 
         void Update()
         {
-            if (_position.Enabled)
+            var dt = Time.deltaTime;
+
+            if (_translationMode != TranslationMode.Off)
             {
-                var delta = _position.Vector * _position.Delta;
+                var dp = TranslationVector * _translationSpeed * dt;
+
                 if (_useLocalCoordinate)
-                    transform.localPosition += delta;
+                    transform.localPosition += dp;
                 else
-                    transform.position += delta;
+                    transform.position += dp;
             }
 
-            if (_rotation.Enabled)
+            if (_rotationMode != RotationMode.Off)
             {
-                var delta = Quaternion.AngleAxis(
-                    _rotation.Delta, _rotation.Vector);
+                var dr = Quaternion.AngleAxis(
+                    _rotationSpeed * dt, RotationVector);
+
                 if (_useLocalCoordinate)
-                    transform.localRotation = delta * transform.localRotation;
+                    transform.localRotation = dr * transform.localRotation;
                 else
-                    transform.rotation = delta * transform.rotation;
+                    transform.rotation = dr * transform.rotation;
             }
         }
 
