@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace SmoothFollowTest
+namespace Klak.Test
 {
     public class RandomWalker : MonoBehaviour
     {
