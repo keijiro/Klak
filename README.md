@@ -27,6 +27,9 @@ Stuff in the current collection
  - Frame rate independent exponential interpolation
  - Classic spring smoothing
  - Critically damped spring smoothing
+
+- Key input event sender
+- AR/ADSR-style envelope generator
  
 - Image sequence writer
 
