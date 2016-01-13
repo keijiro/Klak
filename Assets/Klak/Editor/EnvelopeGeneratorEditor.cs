@@ -30,7 +30,7 @@ namespace Klak
     [CustomEditor(typeof(EnvelopeGenerator))]
     public class EnvelopeGeneratorEditor : Editor
     {
-        SerializedProperty _signalMode;
+        SerializedProperty _inputMode;
         SerializedProperty _attackTime;
         SerializedProperty _decayTime;
         SerializedProperty _sustainLevel;
@@ -44,9 +44,11 @@ namespace Klak
         Vector3[] _rectVertices;
         Vector3[] _lineVertices;
 
+        static GUIContent _textOutput = new GUIContent("Output");
+
         void OnEnable()
         {
-            _signalMode = serializedObject.FindProperty("_signalMode");
+            _inputMode = serializedObject.FindProperty("_inputMode");
             _attackTime = serializedObject.FindProperty("_attackTime");
             _decayTime = serializedObject.FindProperty("_decayTime");
             _sustainLevel = serializedObject.FindProperty("_sustainLevel");
@@ -65,10 +67,10 @@ namespace Klak
             serializedObject.Update();
 
             var showGateModeOptions =
-                _signalMode.hasMultipleDifferentValues ||
-                _signalMode.enumValueIndex == (int)EnvelopeGenerator.SignalMode.Gate;
+                _inputMode.hasMultipleDifferentValues ||
+                _inputMode.enumValueIndex == (int)EnvelopeGenerator.InputMode.Gate;
 
-            EditorGUILayout.PropertyField(_signalMode);
+            EditorGUILayout.PropertyField(_inputMode);
             EditorGUILayout.PropertyField(_attackTime);
 
             if (showGateModeOptions)
@@ -95,8 +97,13 @@ namespace Klak
 
             if (serializedObject.isEditingMultipleObjects)
                 EditorGUILayout.PropertyField(_envelopeEvents, true);
-            else
+            else if (showGateModeOptions)
                 DrawEventList();
+            else
+            {
+                var firstEvent = _envelopeEvents.GetArrayElementAtIndex(0);
+                EditorGUILayout.PropertyField(firstEvent, _textOutput);
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -107,6 +114,7 @@ namespace Klak
 
             // FIXME: should be replaced with DelayedIntField in 5.3
             chlen = EditorGUILayout.IntField("Output Channels", chlen);
+            chlen = Mathf.Max(chlen, 1);
 
             // enlarge/shrink the list when the size is changed
             while (chlen > _envelopeEvents.arraySize)
@@ -137,7 +145,7 @@ namespace Klak
 
             // constants
             const int div = _vertexPerSegment;
-            var gated = (env.signalMode == EnvelopeGenerator.SignalMode.Gate);
+            var gated = (env.signalMode == EnvelopeGenerator.InputMode.Gate);
 
             // segment lengths
             var Ta = env.attackTime;
@@ -153,7 +161,7 @@ namespace Klak
             for (var i = 1; i < div; i++)
             {
                 var x = Mathf.Min(Ta * i / div, 1.0f);
-                var y = env.CalculateCurve(x, Ta + Td + Ts);
+                var y = env.GetLevelAtTime(x, Ta + Td + Ts);
                 _lineVertices[vc++] = PointInRect(rect, x, y);
             }
 
@@ -163,7 +171,7 @@ namespace Klak
                 for (var i = 0; i < div + 1; i++)
                 {
                     var x = Mathf.Min(Ta + Td * i / div, 1.0f);
-                    var y = env.CalculateCurve(x, Ta + Td + Ts);
+                    var y = env.GetLevelAtTime(x, Ta + Td + Ts);
                     _lineVertices[vc++] = PointInRect(rect, x, y);
                     if (x == 1.0f) break;
                 }
@@ -175,7 +183,7 @@ namespace Klak
                 for (var i = 0; i < div + 1; i++)
                 {
                     var x = Mathf.Min(Ta + Td + Ts + Tr * i / div, 1.0f);
-                    var y = env.CalculateCurve(x, Ta + Td + Ts);
+                    var y = env.GetLevelAtTime(x, Ta + Td + Ts);
                     _lineVertices[vc++] = PointInRect(rect, x, y);
                     if (x == 1.0f) break;
                 }
@@ -187,7 +195,7 @@ namespace Klak
             else if (Ta + Td < 1)
             {
                 // sustain level flat line
-                var y = env.CalculateCurve(1, Ta + Td + Ts);
+                var y = env.GetLevelAtTime(1, Ta + Td + Ts);
                 _lineVertices[vc++] = PointInRect(rect, 1, y);
             }
 

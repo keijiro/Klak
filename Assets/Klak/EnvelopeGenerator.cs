@@ -32,7 +32,7 @@ namespace Klak
     {
         #region Public Nested Classes
 
-        public enum SignalMode { Trigger, Gate }
+        public enum InputMode { Trigger, Gate }
 
         [System.Serializable]
         public class EnvelopeEvent : UnityEvent<float> {}
@@ -42,7 +42,7 @@ namespace Klak
         #region Editable Properties
 
         [SerializeField]
-        SignalMode _signalMode = SignalMode.Trigger;
+        InputMode _inputMode = InputMode.Trigger;
 
         [SerializeField, Range(0, 1)]
         float _attackTime = 0.02f;
@@ -72,8 +72,8 @@ namespace Klak
 
         #region Public Properties
 
-        public SignalMode signalMode {
-            get { return _signalMode; }
+        public InputMode signalMode {
+            get { return _inputMode; }
         }
 
         public float attackTime {
@@ -115,43 +115,49 @@ namespace Klak
 
         #region Public Methods
 
+        /// Start envelope in the trigger mode.
         public void Trigger()
         {
             Trigger(1);
         }
 
+        /// Start envelope in the trigger mode.
         public void Trigger(float velocity)
         {
-            Assert.IsTrue(_signalMode == SignalMode.Trigger);
+            Assert.IsTrue(_inputMode == InputMode.Trigger);
             _voices.Peek().Trigger(velocity);
         }
 
+        /// Start envelope in the gate mode.
         public void NoteOn(int note)
         {
             NoteOn(note, 1);
         }
 
+        /// Start envelope in the gate mode.
         public void NoteOn(int note, float velocity)
         {
-            Assert.IsTrue(_signalMode == SignalMode.Gate);
+            Assert.IsTrue(_inputMode == InputMode.Gate);
             var v = _voices.Dequeue();
             if (v.Playing) v.NoteOff();
             v.NoteOn(note, velocity);
             _voices.Enqueue(v);
         }
 
+        /// End envelope in the gate mode.
         public void NoteOff(int note)
         {
-            Assert.IsTrue(_signalMode == SignalMode.Gate);
+            Assert.IsTrue(_inputMode == InputMode.Gate);
             foreach (var v in _voices)
                 if (v.NoteNumber == note)
                     v.NoteOff();
         }
 
-        // only used in the editor; not useful for runtime
-        public float CalculateCurve(float time, float noteLength)
+        /// Calculate envelope level at a given time.
+        /// Only used in the editor code; not useful for runtime.
+        public float GetLevelAtTime(float time, float noteLength)
         {
-            if (_signalMode == SignalMode.Trigger)
+            if (_inputMode == InputMode.Trigger)
                 return ARCurve(time);
             else if (time <= noteLength)
                 return ADCurve(time);
@@ -254,8 +260,14 @@ namespace Klak
         void Start()
         {
             _voices = new Queue<Voice>();
-            foreach (var e in _envelopeEvents)
-                _voices.Enqueue(new Voice(e));
+
+            if (_inputMode == InputMode.Trigger)
+                // trigger mode: only use the first event
+                _voices.Enqueue(new Voice(_envelopeEvents[0]));
+            else
+                // gate mode: make 1-to-1 pairs of voice and event.
+                foreach (var e in _envelopeEvents)
+                    _voices.Enqueue(new Voice(e));
         }
 
         void Update()
@@ -268,7 +280,7 @@ namespace Klak
 
                 var env = 0.0f;
 
-                if (_signalMode == SignalMode.Trigger)
+                if (_inputMode == InputMode.Trigger)
                 {
                     env = ARCurve(v.CurrentTime);
                 }
