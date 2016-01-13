@@ -57,7 +57,7 @@ namespace Klak
             _envelopeEvents = serializedObject.FindProperty("_envelopeEvents");
 
             _rectVertices = new Vector3[4];
-            _lineVertices = new Vector3[_vertexPerSegment * 3 + 2];
+            _lineVertices = new Vector3[_vertexPerSegment * 3 + 3];
         }
 
         public override void OnInspectorGUI()
@@ -124,7 +124,7 @@ namespace Klak
 
         void DrawEnvelope(EnvelopeGenerator env)
         {
-            var rect = GUILayoutUtility.GetRect(128, 64 * 3);
+            var rect = GUILayoutUtility.GetRect(128, 64);
 
             // background
             _rectVertices[0] = new Vector3(rect.x, rect.y);
@@ -137,54 +137,62 @@ namespace Klak
 
             // constants
             const int div = _vertexPerSegment;
-            var exp = env.exponent;
+            var gated = (env.signalMode == EnvelopeGenerator.SignalMode.Gate);
 
             // segment lengths
             var Ta = env.attackTime;
-            var Td = env.decayTime;
-            var Ts = 0.2f;
+            var Td = gated ? env.decayTime : 0.0f;
+            var Ts = gated ? 0.2f : 0.0f;
             var Tr = env.releaseTime;
 
             // origin
-            var vi = 0;
-            var cutend = false;
-            _lineVertices[vi++] = PointInRect(rect, 0, 0);
+            var vc = 0;
+            _lineVertices[vc++] = PointInRect(rect, 0, 0);
 
             // attack
-            for (var i = 1; i < div && !cutend; i++)
+            for (var i = 1; i < div; i++)
             {
-                var x = Ta * i / div;
-                if (x > 1) { x = 1; cutend = true; }
-                var y = Mathf.Pow((float)i / div, exp);
-                _lineVertices[vi++] = PointInRect(rect, x, y);
+                var x = Mathf.Min(Ta * i / div, 1.0f);
+                var y = env.CalculateCurve(x, Ta + Td + Ts);
+                _lineVertices[vc++] = PointInRect(rect, x, y);
             }
 
             // decay
-            if (!cutend)
-            for (var i = 0; i < div + 1 && !cutend; i++)
+            if (gated)
             {
-                var x = Ta + Td * i / div;
-                if (x > 1) { x = 1; cutend = true; }
-                var y = Mathf.Pow(1.0f - (float)i / div, exp);
-                y = Mathf.Lerp(y, 1.0f, env.sustainLevel);
-                _lineVertices[vi++] = PointInRect(rect, x, y);
+                for (var i = 0; i < div + 1; i++)
+                {
+                    var x = Mathf.Min(Ta + Td * i / div, 1.0f);
+                    var y = env.CalculateCurve(x, Ta + Td + Ts);
+                    _lineVertices[vc++] = PointInRect(rect, x, y);
+                    if (x == 1.0f) break;
+                }
             }
 
             // release
-            if (!cutend)
-            for (var i = 0; i < div + 1 && !cutend; i++)
+            if (Ta + Td + Ts <= 1)
             {
-                var x = Ta + Td + Ts + Tr * i / div;
-                if (x > 1) { x = 1; cutend = true; }
-                var y = Mathf.Pow(1.0f - (float)i / div, exp) * env.sustainLevel;
-                _lineVertices[vi++] = PointInRect(rect, x, y);
+                for (var i = 0; i < div + 1; i++)
+                {
+                    var x = Mathf.Min(Ta + Td + Ts + Tr * i / div, 1.0f);
+                    var y = env.CalculateCurve(x, Ta + Td + Ts);
+                    _lineVertices[vc++] = PointInRect(rect, x, y);
+                    if (x == 1.0f) break;
+                }
+
+                // zero flat line
+                if (Ta + Td + Ts + Tr < 1)
+                    _lineVertices[vc++] = PointInRect(rect, 1, 0);
+            }
+            else if (Ta + Td < 1)
+            {
+                // sustain level flat line
+                var y = env.CalculateCurve(1, Ta + Td + Ts);
+                _lineVertices[vc++] = PointInRect(rect, 1, y);
             }
 
-            for (; vi < _lineVertices.Length; vi++)
-                _lineVertices[vi] = _lineVertices[vi - 1];
-
             // draw the line
-            Handles.DrawAAPolyLine(_lineVertices);
+            Handles.DrawAAPolyLine(2.0f, vc, _lineVertices);
         }
 
         Vector3 PointInRect(Rect rect, float x, float y)

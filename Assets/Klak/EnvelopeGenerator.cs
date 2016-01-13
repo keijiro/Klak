@@ -72,6 +72,10 @@ namespace Klak
 
         #region Public Properties
 
+        public SignalMode signalMode {
+            get { return _signalMode; }
+        }
+
         public float attackTime {
             get { return _attackTime; }
             set { _attackTime = value; }
@@ -131,7 +135,7 @@ namespace Klak
         {
             Assert.IsTrue(_signalMode == SignalMode.Gate);
             var v = _voices.Dequeue();
-            if (!v.Available) v.NoteOff();
+            if (v.Playing) v.NoteOff();
             v.NoteOn(note, velocity);
             _voices.Enqueue(v);
         }
@@ -144,27 +148,39 @@ namespace Klak
                     v.NoteOff();
         }
 
+        // only used in the editor; not useful for runtime
+        public float CalculateCurve(float time, float noteLength)
+        {
+            if (_signalMode == SignalMode.Trigger)
+                return ARCurve(time);
+            else if (time <= noteLength)
+                return ADCurve(time);
+            else
+                return ADCurve(noteLength) * RCurve(time - noteLength);
+        }
+
         #endregion
 
         #region Voice Queue
 
         class Voice
         {
-            public int NoteNumber { get; set; }
-            public float Velocity { get; set; }
-            public float NoteLength { get; set; }
-            public float CurrentTime { get; set; }
             public EnvelopeEvent Event { get; set; }
 
-            public bool Available {
-                get { return NoteNumber < 0; }
+            public int NoteNumber { get; set; }
+            public float Velocity { get; set; }
+
+            public float CurrentTime { get; set; }
+            public float NoteOffTime { get; set; }
+
+            public bool Playing {
+                get { return CurrentTime > NoteOffTime; }
             }
 
             public Voice(EnvelopeEvent e)
             {
-                NoteNumber = -1;
-                CurrentTime = 1e6f;
                 Event = e;
+                CurrentTime = 1e6f;
             }
 
             public void Trigger(float velocity)
@@ -177,14 +193,13 @@ namespace Klak
             {
                 NoteNumber = note;
                 Velocity = velocity;
-                NoteLength = 0;
                 CurrentTime = 0;
+                NoteOffTime = 1e6f;
             }
 
             public void NoteOff()
             {
-                NoteNumber = -1;
-                NoteLength = CurrentTime;
+                NoteOffTime = CurrentTime;
             }
         }
 
@@ -202,7 +217,7 @@ namespace Klak
         float ARCurve(float time)
         {
             if (time < _attackTime)
-                return Exp(time / _attackTime); 
+                return 1 - Exp(1 - time / _attackTime); 
 
             if (time < _attackTime + _releaseTime)
                 return Exp(1 - (time - _attackTime) / _releaseTime);
@@ -213,7 +228,7 @@ namespace Klak
         float ADCurve(float time)
         {
             if (time < _attackTime)
-                return Exp(time / _attackTime); 
+                return 1 - Exp(1 - time / _attackTime); 
 
             if (time < _attackTime + _decayTime)
             {
@@ -257,14 +272,14 @@ namespace Klak
                 {
                     env = ARCurve(v.CurrentTime);
                 }
-                else if (v.NoteNumber >= 0)
+                else if (v.CurrentTime <= v.NoteOffTime)
                 {
                     env = ADCurve(v.CurrentTime);
                 }
                 else
                 {
-                    env = ADCurve(v.NoteLength);
-                    env *= RCurve(v.CurrentTime - v.NoteLength);
+                    env = ADCurve(v.NoteOffTime);
+                    env *= RCurve(v.CurrentTime - v.NoteOffTime);
                 }
 
                 v.Event.Invoke(env * _amplitude * v.Velocity + _bias);

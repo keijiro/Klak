@@ -114,11 +114,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _signalMode: 1
-  _attackTime: .0370000005
-  _decayTime: .0799999982
-  _sustainLevel: .5
-  _releaseTime: .225999996
-  _exponent: 1
+  _attackTime: .211999997
+  _decayTime: .31099999
+  _sustainLevel: .523000002
+  _releaseTime: .296999991
+  _exponent: 3.25
   _amplitude: 4
   _bias: 0
   _envelopeEvents:
