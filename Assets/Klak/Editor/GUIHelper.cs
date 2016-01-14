@@ -26,35 +26,13 @@ using UnityEditor;
 
 namespace Klak
 {
-    [CanEditMultipleObjects]
-    [CustomEditor(typeof(ThresholdTrigger))]
-    public class ThresholdTriggerEditor : Editor
+    public static class GUIHelper
     {
-        SerializedProperty _threshold;
-        SerializedProperty _delayToOff;
-        SerializedProperty _onEvent;
-        SerializedProperty _offEvent;
-
-        void OnEnable()
+        public static void ShowInputValueNote()
         {
-            _threshold = serializedObject.FindProperty("_threshold");
-            _delayToOff = serializedObject.FindProperty("_delayToOff");
-            _onEvent = serializedObject.FindProperty("_onEvent");
-            _offEvent = serializedObject.FindProperty("_offEvent");
-        }
-
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-            GUIHelper.ShowInputValueNote();
-
-            EditorGUILayout.PropertyField(_threshold);
-            EditorGUILayout.PropertyField(_delayToOff);
-            EditorGUILayout.PropertyField(_onEvent);
-            EditorGUILayout.PropertyField(_offEvent);
-
-            serializedObject.ApplyModifiedProperties();
+            EditorGUILayout.HelpBox(
+                "This component receives signals from inputValue property.",
+                MessageType.None);
         }
     }
 }

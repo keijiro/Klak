@@ -47,6 +47,8 @@ namespace Klak
         {
             serializedObject.Update();
 
+            GUIHelper.ShowInputValueNote();
+
             EditorGUILayout.PropertyField(_colorMode);
 
             if (_colorMode.hasMultipleDifferentValues ||

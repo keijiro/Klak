@@ -70,6 +70,8 @@ namespace Klak
         {
             serializedObject.Update();
 
+            GUIHelper.ShowInputValueNote();
+
             EditorGUILayout.PropertyField(_targetTransform);
 
             EditorGUILayout.PropertyField(_translationMode, _textTranslation);
