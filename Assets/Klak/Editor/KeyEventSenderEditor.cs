@@ -30,27 +30,62 @@ namespace Klak
     [CustomEditor(typeof(KeyEventSender))]
     public class KeyEventSenderEditor : Editor
     {
-        SerializedProperty _mode;
+        SerializedProperty _eventType;
         SerializedProperty _keyCode;
+
+        SerializedProperty _offValue;
+        SerializedProperty _onValue;
+        SerializedProperty _interpolator;
+
+        SerializedProperty _triggerEvent;
         SerializedProperty _keyDownEvent;
         SerializedProperty _keyUpEvent;
+        SerializedProperty _valueEvent;
 
         void OnEnable()
         {
-            _mode = serializedObject.FindProperty("_mode");
+            _eventType = serializedObject.FindProperty("_eventType");
             _keyCode = serializedObject.FindProperty("_keyCode");
+
+            _offValue = serializedObject.FindProperty("_offValue");
+            _onValue = serializedObject.FindProperty("_onValue");
+            _interpolator = serializedObject.FindProperty("_interpolator");
+
+            _triggerEvent = serializedObject.FindProperty("_triggerEvent");
             _keyDownEvent = serializedObject.FindProperty("_keyDownEvent");
             _keyUpEvent = serializedObject.FindProperty("_keyUpEvent");
+            _valueEvent = serializedObject.FindProperty("_valueEvent");
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            EditorGUILayout.PropertyField(_mode);
+            EditorGUILayout.PropertyField(_eventType);
             EditorGUILayout.PropertyField(_keyCode);
-            EditorGUILayout.PropertyField(_keyDownEvent);
-            EditorGUILayout.PropertyField(_keyUpEvent);
+
+            if (_eventType.hasMultipleDifferentValues ||
+                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Value)
+            {
+                EditorGUILayout.PropertyField(_offValue);
+                EditorGUILayout.PropertyField(_onValue);
+                EditorGUILayout.PropertyField(_interpolator);
+            }
+
+            if (_eventType.hasMultipleDifferentValues ||
+                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Trigger)
+                EditorGUILayout.PropertyField(_triggerEvent);
+
+            if (_eventType.hasMultipleDifferentValues ||
+                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Gate)
+            {
+                EditorGUILayout.PropertyField(_keyDownEvent);
+                EditorGUILayout.PropertyField(_keyUpEvent);
+            }
+
+            if (_eventType.hasMultipleDifferentValues ||
+                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Value)
+                EditorGUILayout.PropertyField(_valueEvent);
 
             serializedObject.ApplyModifiedProperties();
         }

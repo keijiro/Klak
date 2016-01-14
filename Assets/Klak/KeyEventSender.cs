@@ -30,17 +30,34 @@ namespace Klak
     {
         #region Nested Public Classes
 
-        public enum Mode { Single }
+        public enum EventType {
+            Trigger, Gate, Value
+        }
+
+        [System.Serializable]
+        public class ValueEvent : UnityEvent<float> {}
 
         #endregion
 
         #region Editable Properties
 
         [SerializeField]
-        Mode _mode;
+        EventType _eventType = EventType.Trigger;
 
         [SerializeField]
         KeyCode _keyCode;
+
+        [SerializeField]
+        float _offValue = 0.0f;
+
+        [SerializeField]
+        float _onValue = 1.0f;
+
+        [SerializeField]
+        FloatInterpolator.Config _interpolator;
+
+        [SerializeField]
+        UnityEvent _triggerEvent;
 
         [SerializeField]
         UnityEvent _keyDownEvent;
@@ -48,14 +65,55 @@ namespace Klak
         [SerializeField]
         UnityEvent _keyUpEvent;
 
+        [SerializeField]
+        ValueEvent _valueEvent;
+
+        #endregion
+
+        #region Private Properties And Variables
+
+        bool IsKeyDown {
+            get { return Input.GetKeyDown(_keyCode); }
+        }
+
+        bool IsKeyUp {
+            get { return Input.GetKeyUp(_keyCode); }
+        }
+
+        FloatInterpolator _value;
+
         #endregion
 
         #region MonoBehaviour Functions
 
+        void Start()
+        {
+            _value = new FloatInterpolator(0, _interpolator);
+        }
+
         void Update()
         {
-            if (Input.GetKeyDown(_keyCode)) _keyDownEvent.Invoke();
-            if (Input.GetKeyUp(_keyCode)) _keyUpEvent.Invoke();
+            if (_eventType == EventType.Trigger)
+            {
+                if (IsKeyDown)
+                    _triggerEvent.Invoke();
+            }
+            else if (_eventType == EventType.Gate)
+            {
+                if (IsKeyDown)
+                    _keyDownEvent.Invoke();
+                else if (IsKeyUp)
+                    _keyUpEvent.Invoke();
+            }
+            else // EventType.Value
+            {
+                if (IsKeyDown)
+                    _value.targetValue = _onValue;
+                else if (IsKeyUp)
+                    _value.targetValue = _offValue;
+
+                _valueEvent.Invoke(_value.Step());
+            }
         }
 
         #endregion
