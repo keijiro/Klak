@@ -29,6 +29,9 @@ namespace Klak
     {
         #region Editable Properties
 
+        [SerializeField] bool _enablePositionNoise = true;
+        [SerializeField] bool _enableRotationNoise = true;
+
         [SerializeField] float _positionFrequency = 0.2f;
         [SerializeField] float _rotationFrequency = 0.2f;
 
@@ -44,6 +47,16 @@ namespace Klak
         #endregion
 
         #region Public Properties
+
+        public bool enablePositionNoise {
+            get { return _enablePositionNoise; }
+            set { _enablePositionNoise = value; }
+        }
+
+        public bool enableRotationNoise {
+            get { return _enableRotationNoise; }
+            set { _enableRotationNoise = value; }
+        }
 
         public float positionFrequency {
             get { return _positionFrequency; }
@@ -116,7 +129,7 @@ namespace Klak
         {
             var dt = Time.deltaTime;
 
-            if (_positionAmplitude != 0)
+            if (_enablePositionNoise)
             {
                 for (var i = 0; i < 3; i++)
                     _time[i] += _positionFrequency * dt;
@@ -132,7 +145,7 @@ namespace Klak
                 transform.localPosition = _initialPosition + n;
             }
 
-            if (_rotationAmplitude != 0)
+            if (_enableRotationNoise)
             {
                 for (var i = 0; i < 3; i++)
                     _time[i + 3] += _rotationFrequency * dt;
