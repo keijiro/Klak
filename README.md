@@ -4,6 +4,8 @@ Klak
 ![gif](http://49.media.tumblr.com/dfba0ff232f0bb76dc10a25026a888a2/tumblr_o0q7hmMfYU1qio469o1_400.gif)
 ![gif](http://49.media.tumblr.com/c2a6d1359aefd3c205a89fec7561ebbd/tumblr_o0sabaXTwl1qio469o1_400.gif)
 
+![components](https://41.media.tumblr.com/4932807bd1f18d005d0c6369e88a952b/tumblr_o0y7kqOFQZ1qio469o1_400.png)
+
 *Klak* is a collection of utilities that were made for creative coding with
 Unity.
 
@@ -30,6 +32,11 @@ Stuff in the current collection
 
 - Key input event sender
 - AR/ADSR-style envelope generator
+
+- Receive-float-value-and-do-something utilities
+ - Float-to-color mapper
+ - Float-to-transform mapper
+ - Threshold trigger
  
 - Image sequence writer
 
