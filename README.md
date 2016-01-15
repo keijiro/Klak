@@ -36,6 +36,7 @@ Stuff in the current collection
 - Receive-float-value-and-do-something utilities
  - Float-to-color mapper
  - Float-to-transform mapper
+ - Float value remapper
  - Threshold trigger
  
 - Image sequence writer
