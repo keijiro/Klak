@@ -491,7 +491,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: ConstantMotion (moves and rotates an object with constant velocity)
+  m_Text: ConstantMotion (moves and rotates an object with a constant velocity)
 --- !u!222 &1145475366
 CanvasRenderer:
   m_ObjectHideFlags: 0

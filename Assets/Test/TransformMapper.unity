@@ -551,8 +551,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'TransformMapper (receives a float value and control a transform based on
-    the given value)
+  m_Text: 'TransformMapper (receives a float value and controls a transform based
+    on the given value)
 
     z: move and rotate the teapot'
 --- !u!222 &1583550424

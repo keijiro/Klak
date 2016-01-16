@@ -133,14 +133,14 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'ValueRemapper (receives a float value, do a calculation and send it to
-    another object)
+  m_Text: 'ValueRemapper (receives a float value, does a calculation and sends the
+    result to another object)
 
     z: rate1 (from 0 to 1)
 
     x: rate2 (from 1 to 10)
 
-    The emission rate of the particle system is controlled with rate1 * rate2.'
+    The emission rate of the particle system is controlled with rate1*rate2.'
 --- !u!222 &218237855
 CanvasRenderer:
   m_ObjectHideFlags: 0

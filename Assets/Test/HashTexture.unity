@@ -401,7 +401,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: XXHash texture (see if there is any noticeable pattern)
+  m_Text: XXHash texture test (it's okay if there is no noticeable pattern)
 --- !u!222 &1141167612
 CanvasRenderer:
   m_ObjectHideFlags: 0

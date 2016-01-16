@@ -693,8 +693,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'EnvelopeGenerator (receives triggers or key-on/off events, and send a float
-    value that changes over time)
+  m_Text: 'EnvelopeGenerator (receives triggers or key-on/off events, and sends a
+    float value that changes over time)
 
     z, x, c: control the spotlights with the envelope generators'
 --- !u!222 &625907220
