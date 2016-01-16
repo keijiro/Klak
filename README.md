@@ -6,7 +6,7 @@ Klak
 
 ![components](https://41.media.tumblr.com/4932807bd1f18d005d0c6369e88a952b/tumblr_o0y7kqOFQZ1qio469o1_640.png)
 
-*Klak* is a collection of utilities that were made for creative coding with
+*Klak* is a collection of utilities that are made for creative coding with
 Unity.
 
 Stuff in the current collection
@@ -33,9 +33,9 @@ Stuff in the current collection
 - Key input event sender
 - AR/ADSR-style envelope generator
 
-- Receive-float-value-and-do-something utilities
- - Float-to-color mapper
- - Float-to-transform mapper
+- Components for event handling
+ - Float-to-color event converter
+ - Float-to-transform event converter
  - Float value remapper
  - Threshold trigger
  
