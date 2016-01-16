@@ -1,4 +1,4 @@
-﻿//
+//
 // Klak - Utilities for creative coding with Unity
 //
 // Copyright (C) 2016 Keijiro Takahashi

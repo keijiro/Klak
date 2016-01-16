@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Klak;
 
 public class HashTexture : MonoBehaviour
