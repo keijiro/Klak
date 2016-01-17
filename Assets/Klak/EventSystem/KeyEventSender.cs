@@ -31,7 +31,7 @@ namespace Klak
         #region Nested Public Classes
 
         public enum EventType {
-            Trigger, Gate, Value
+            Trigger, Gate, Toggle, Value
         }
 
         [System.Serializable]
@@ -66,6 +66,12 @@ namespace Klak
         UnityEvent _keyUpEvent;
 
         [SerializeField]
+        UnityEvent _toggleOnEvent;
+
+        [SerializeField]
+        UnityEvent _toggleOffEvent;
+
+        [SerializeField]
         ValueEvent _valueEvent;
 
         #endregion
@@ -81,6 +87,7 @@ namespace Klak
         }
 
         FloatInterpolator _value;
+        bool _toggle;
 
         #endregion
 
@@ -104,6 +111,17 @@ namespace Klak
                     _keyDownEvent.Invoke();
                 else if (IsKeyUp)
                     _keyUpEvent.Invoke();
+            }
+            else if (_eventType == EventType.Toggle)
+            {
+                if (IsKeyDown)
+                {
+                    _toggle ^= true;
+                    if (_toggle)
+                        _toggleOnEvent.Invoke();
+                    else
+                        _toggleOffEvent.Invoke();
+                }
             }
             else // EventType.Value
             {

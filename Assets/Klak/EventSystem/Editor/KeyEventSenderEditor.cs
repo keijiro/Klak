@@ -40,6 +40,8 @@ namespace Klak
         SerializedProperty _triggerEvent;
         SerializedProperty _keyDownEvent;
         SerializedProperty _keyUpEvent;
+        SerializedProperty _toggleOnEvent;
+        SerializedProperty _toggleOffEvent;
         SerializedProperty _valueEvent;
 
         void OnEnable()
@@ -54,6 +56,8 @@ namespace Klak
             _triggerEvent = serializedObject.FindProperty("_triggerEvent");
             _keyDownEvent = serializedObject.FindProperty("_keyDownEvent");
             _keyUpEvent = serializedObject.FindProperty("_keyUpEvent");
+            _toggleOnEvent = serializedObject.FindProperty("_toggleOnEvent");
+            _toggleOffEvent = serializedObject.FindProperty("_toggleOffEvent");
             _valueEvent = serializedObject.FindProperty("_valueEvent");
         }
 
@@ -64,27 +68,32 @@ namespace Klak
             EditorGUILayout.PropertyField(_eventType);
             EditorGUILayout.PropertyField(_keyCode);
 
-            if (_eventType.hasMultipleDifferentValues ||
-                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Value)
+            var showAllEvents = _eventType.hasMultipleDifferentValues;
+            var eventType = (KeyEventSender.EventType)_eventType.enumValueIndex;
+
+            if (showAllEvents || eventType == KeyEventSender.EventType.Value)
             {
                 EditorGUILayout.PropertyField(_offValue);
                 EditorGUILayout.PropertyField(_onValue);
                 EditorGUILayout.PropertyField(_interpolator);
             }
 
-            if (_eventType.hasMultipleDifferentValues ||
-                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Trigger)
+            if (showAllEvents || eventType == KeyEventSender.EventType.Trigger)
                 EditorGUILayout.PropertyField(_triggerEvent);
 
-            if (_eventType.hasMultipleDifferentValues ||
-                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Gate)
+            if (showAllEvents || eventType == KeyEventSender.EventType.Gate)
             {
                 EditorGUILayout.PropertyField(_keyDownEvent);
                 EditorGUILayout.PropertyField(_keyUpEvent);
             }
 
-            if (_eventType.hasMultipleDifferentValues ||
-                _eventType.enumValueIndex == (int)KeyEventSender.EventType.Value)
+            if (showAllEvents || eventType == KeyEventSender.EventType.Toggle)
+            {
+                EditorGUILayout.PropertyField(_toggleOnEvent);
+                EditorGUILayout.PropertyField(_toggleOffEvent);
+            }
+
+            if (showAllEvents || eventType == KeyEventSender.EventType.Value)
                 EditorGUILayout.PropertyField(_valueEvent);
 
             serializedObject.ApplyModifiedProperties();
