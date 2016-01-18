@@ -38,6 +38,7 @@ Stuff in the current collection
  - Float-to-transform event converter
  - Float value remapper
  - Threshold trigger
+ - Multi-state toggle
  
 - Image sequence writer
 
