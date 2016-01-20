@@ -52,8 +52,6 @@ namespace Klak
 
         void StartRecord()
         {
-            System.IO.Directory.CreateDirectory("Capture");
-            Time.captureFramerate = _frameRate;
             _frameCount = -1;
             _isRecording = true;
         }
@@ -66,7 +64,12 @@ namespace Klak
 
         void StepRecorder()
         {
-            if (_frameCount > 0)
+            if (_frameCount == 0)
+            {
+                System.IO.Directory.CreateDirectory("Capture");
+                Time.captureFramerate = _frameRate;
+            }
+            else if (_frameCount > 0)
             {
                 var name = "Capture/frame" + _frameCount.ToString("0000") + ".png";
                 Application.CaptureScreenshot(name, _superSampling);
@@ -108,7 +111,7 @@ namespace Klak
 
         void OnGUI()
         {
-            _frameRate = EditorGUILayout.IntSlider("Frame Rate", _frameRate, 1, 100);
+            _frameRate = EditorGUILayout.IntSlider("Frame Rate", _frameRate, 1, 120);
             _superSampling = EditorGUILayout.IntSlider("Supersampling", _superSampling, 1, 4);
             _autoRecord = EditorGUILayout.Toggle("Auto Recording", _autoRecord);
 
