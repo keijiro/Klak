@@ -149,7 +149,7 @@ namespace Klak
         {
             Assert.IsTrue(_inputMode == InputMode.Gate);
             foreach (var v in _voices)
-                if (v.NoteNumber == note)
+                if (v.Playing && v.NoteNumber == note)
                     v.NoteOff();
         }
 
@@ -180,7 +180,7 @@ namespace Klak
             public float NoteOffTime { get; set; }
 
             public bool Playing {
-                get { return CurrentTime > NoteOffTime; }
+                get { return CurrentTime < NoteOffTime; }
             }
 
             public Voice(EnvelopeEvent e)
