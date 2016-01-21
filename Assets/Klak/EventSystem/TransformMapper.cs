@@ -107,6 +107,46 @@ namespace Klak
 
         #endregion
 
+        #region Scale Settings
+
+        public enum ScaleMode {
+            Off, Uniform, Vector, Random
+        }
+
+        [SerializeField]
+        ScaleMode _scaleMode = ScaleMode.Off;
+
+        [SerializeField]
+        Vector3 _scaleVector = Vector3.one;
+
+        [SerializeField]
+        float _scaleAmount0 = 0.0f;
+
+        [SerializeField]
+        float _scaleAmount1 = 1.0f;
+
+        public ScaleMode scaleMode {
+            get { return _scaleMode; }
+            set { _scaleMode = value; }
+        }
+
+        public Vector3 scaleVector {
+            get { return _scaleVector; }
+            set { _scaleVector = value; }
+        }
+
+        public float scaleAmount0 {
+            get { return _scaleAmount0; }
+            set { _scaleAmount0 = value; }
+        }
+
+        public float scaleAmount1 {
+            get { return _scaleAmount1; }
+            set { _scaleAmount1 = value; }
+        }
+
+        #endregion
+
         #region Miscellaneous Settings
 
         [SerializeField]
@@ -142,6 +182,9 @@ namespace Klak
 
                     if (_rotationMode != RotationMode.Off)
                         UpdateRotation(value);
+
+                    if (_scaleMode != ScaleMode.Off)
+                        UpdateScale(value);
                 }
             }
         }
@@ -152,8 +195,10 @@ namespace Klak
 
         Vector3 _originalPosition;
         Quaternion _originalRotation;
+        Vector3 _originalScale;
         Vector3 _randomVectorT;
         Vector3 _randomVectorR;
+        Vector3 _randomVectorS;
 
         Vector3 TranslationVector {
             get {
@@ -183,6 +228,17 @@ namespace Klak
             }
         }
 
+        Vector3 ScaleVector {
+            get {
+                if (_scaleMode == ScaleMode.Uniform)
+                    return Vector3.one;
+                else if (_scaleMode == ScaleMode.Vector)
+                    return _scaleVector;
+                else // ScaleMode.Random
+                    return _randomVectorS;
+            }
+        }
+
         void UpdatePosition(float value)
         {
             var a = Mathf.Lerp(_translationAmount0, _translationAmount1, value);
@@ -199,6 +255,14 @@ namespace Klak
             _targetTransform.localRotation = r;
         }
 
+        void UpdateScale(float value)
+        {
+            var a = Mathf.Lerp(_scaleAmount0, _scaleAmount1, value);
+            var s = ScaleVector * a;
+            if (_addToOriginal) s += _originalScale;
+            _targetTransform.localScale = s;
+        }
+
         #endregion
 
         #region MonoBehaviour Functions
@@ -209,6 +273,7 @@ namespace Klak
             {
                 _originalPosition = _targetTransform.localPosition;
                 _originalRotation = _targetTransform.localRotation;
+                _originalScale = _targetTransform.localScale;
             }
         }
 
@@ -218,6 +283,7 @@ namespace Klak
             {
                 _targetTransform.localPosition = _originalPosition;
                 _targetTransform.localRotation = _originalRotation;
+                _targetTransform.localScale = _originalScale;
             }
         }
 
@@ -225,6 +291,7 @@ namespace Klak
         {
             _randomVectorT = Random.onUnitSphere;
             _randomVectorR = Random.onUnitSphere;
+            _randomVectorS = new Vector3(Random.value, Random.value, Random.value);
         }
 
         #endregion

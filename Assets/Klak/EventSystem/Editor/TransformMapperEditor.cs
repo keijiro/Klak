@@ -40,6 +40,11 @@ namespace Klak
         SerializedProperty _rotationAngle0;
         SerializedProperty _rotationAngle1;
 
+        SerializedProperty _scaleMode;
+        SerializedProperty _scaleVector;
+        SerializedProperty _scaleAmount0;
+        SerializedProperty _scaleAmount1;
+
         SerializedProperty _targetTransform;
         SerializedProperty _addToOriginal;
 
@@ -48,6 +53,7 @@ namespace Klak
         static GUIContent _textAngle0 = new GUIContent("Angle at 0");
         static GUIContent _textAngle1 = new GUIContent("Angle at 1");
         static GUIContent _textRotation = new GUIContent("Rotation");
+        static GUIContent _textScale = new GUIContent("Scale");
         static GUIContent _textTranslation = new GUIContent("Translation");
 
         void OnEnable()
@@ -62,6 +68,11 @@ namespace Klak
             _rotationAngle0 = serializedObject.FindProperty("_rotationAngle0");
             _rotationAngle1 = serializedObject.FindProperty("_rotationAngle1");
 
+            _scaleMode = serializedObject.FindProperty("_scaleMode");
+            _scaleVector = serializedObject.FindProperty("_scaleVector");
+            _scaleAmount0 = serializedObject.FindProperty("_scaleAmount0");
+            _scaleAmount1 = serializedObject.FindProperty("_scaleAmount1");
+
             _targetTransform = serializedObject.FindProperty("_targetTransform");
             _addToOriginal = serializedObject.FindProperty("_addToOriginal");
         }
@@ -74,16 +85,19 @@ namespace Klak
 
             EditorGUILayout.PropertyField(_targetTransform);
 
+            // translation
+
             EditorGUILayout.PropertyField(_translationMode, _textTranslation);
 
             EditorGUI.indentLevel++;
 
-            if (_translationMode.hasMultipleDifferentValues ||
-                _translationMode.enumValueIndex == (int)ConstantMotion.TranslationMode.Vector)
+            var showAll = _translationMode.hasMultipleDifferentValues;
+            var t_mode = (TransformMapper.TranslationMode)_translationMode.enumValueIndex;
+
+            if (showAll || t_mode == TransformMapper.TranslationMode.Vector)
                 EditorGUILayout.PropertyField(_translationVector, GUIContent.none);
 
-            if (_translationMode.hasMultipleDifferentValues ||
-                _translationMode.enumValueIndex != 0)
+            if (showAll || t_mode != TransformMapper.TranslationMode.Off)
             {
                 EditorGUILayout.PropertyField(_translationAmount0, _textAmount0);
                 EditorGUILayout.PropertyField(_translationAmount1, _textAmount1);
@@ -91,22 +105,47 @@ namespace Klak
 
             EditorGUI.indentLevel--;
 
+            // rotation
+
             EditorGUILayout.PropertyField(_rotationMode, _textRotation);
 
             EditorGUI.indentLevel++;
 
-            if (_rotationMode.hasMultipleDifferentValues ||
-                _rotationMode.enumValueIndex == (int)ConstantMotion.RotationMode.Vector)
+            showAll = _rotationMode.hasMultipleDifferentValues;
+            var r_mode = (TransformMapper.RotationMode)_rotationMode.enumValueIndex;
+
+            if (showAll || r_mode == TransformMapper.RotationMode.Vector)
                 EditorGUILayout.PropertyField(_rotationAxis, GUIContent.none);
 
-            if (_rotationMode.hasMultipleDifferentValues ||
-                _rotationMode.enumValueIndex != 0)
+            if (showAll || r_mode != TransformMapper.RotationMode.Off)
             {
                 EditorGUILayout.PropertyField(_rotationAngle0, _textAngle0);
                 EditorGUILayout.PropertyField(_rotationAngle1, _textAngle1);
             }
 
             EditorGUI.indentLevel--;
+
+            // scale
+
+            EditorGUILayout.PropertyField(_scaleMode, _textScale);
+
+            EditorGUI.indentLevel++;
+
+            showAll = _rotationMode.hasMultipleDifferentValues;
+            var s_mode = (TransformMapper.ScaleMode)_scaleMode.enumValueIndex;
+
+            if (showAll || s_mode == TransformMapper.ScaleMode.Vector)
+                EditorGUILayout.PropertyField(_scaleVector, GUIContent.none);
+
+            if (showAll || s_mode != TransformMapper.ScaleMode.Off)
+            {
+                EditorGUILayout.PropertyField(_scaleAmount0, _textAmount0);
+                EditorGUILayout.PropertyField(_scaleAmount1, _textAmount1);
+            }
+
+            EditorGUI.indentLevel--;
+
+            // etc.
 
             EditorGUILayout.PropertyField(_addToOriginal);
 
