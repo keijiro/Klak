@@ -241,7 +241,7 @@ namespace Klak
 
         void UpdatePosition(float value)
         {
-            var a = Mathf.Lerp(_translationAmount0, _translationAmount1, value);
+            var a = Math.Lerp(_translationAmount0, _translationAmount1, value);
             var p = TranslationVector * a;
             if (_addToOriginal) p += _originalPosition;
             _targetTransform.localPosition = p;
@@ -249,7 +249,7 @@ namespace Klak
 
         void UpdateRotation(float value)
         {
-            var a = Mathf.Lerp(_rotationAngle0, _rotationAngle1, value);
+            var a = Math.Lerp(_rotationAngle0, _rotationAngle1, value);
             var r = Quaternion.AngleAxis(a, RotationAxis);
             if (_addToOriginal) r = _originalRotation * r;
             _targetTransform.localRotation = r;
@@ -257,7 +257,7 @@ namespace Klak
 
         void UpdateScale(float value)
         {
-            var a = Mathf.Lerp(_scaleAmount0, _scaleAmount1, value);
+            var a = Math.Lerp(_scaleAmount0, _scaleAmount1, value);
             var s = ScaleVector * a;
             if (_addToOriginal) s += _originalScale;
             _targetTransform.localScale = s;

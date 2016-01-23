@@ -64,6 +64,9 @@ namespace Klak
         AnimationCurve _modulationCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
         [SerializeField]
+        FloatInterpolator.Config _interpolator;
+
+        [SerializeField]
         OutputType _outputType = OutputType.Float;
 
         [SerializeField]
@@ -106,14 +109,20 @@ namespace Klak
         public float inputValue {
             set {
                 _inputValue = value;
-                InvokeEvent();
+                if (_interpolator.enabled)
+                    _value.targetValue = CalculateTargetValue();
+                else
+                    InvokeValueEvent(CalculateTargetValue());
             }
         }
 
         public float modulationValue {
             set {
                 _modulationValue = value;
-                InvokeEvent();
+                if (_interpolator.enabled)
+                    _value.targetValue = CalculateTargetValue();
+                else
+                    InvokeValueEvent(CalculateTargetValue());
             }
         }
 
@@ -123,6 +132,7 @@ namespace Klak
 
         float _inputValue;
         float _modulationValue;
+        FloatInterpolator _value;
 
         float EvalInputCurve()
         {
@@ -134,7 +144,7 @@ namespace Klak
             return _modulationCurve.Evaluate(_modulationValue);
         }
 
-        void InvokeEvent()
+        float CalculateTargetValue()
         {
             var x = EvalInputCurve();
 
@@ -160,24 +170,44 @@ namespace Klak
                     break;
             }
 
+            return x;
+        }
+
+        void InvokeValueEvent(float p)
+        {
             switch (_outputType)
             {
                 case OutputType.Bool:
-                    _boolEvent.Invoke(x > _threshold);
+                    _boolEvent.Invoke(p > _threshold);
                     break;
                 case OutputType.Int:
-                    var i = _intOutput0 + (int)((_intOutput1 - _intOutput0) * x);
-                    _intEvent.Invoke(i);
+                    var i = Math.Lerp(_intOutput0, _intOutput1, p);
+                    _intEvent.Invoke((int)i);
                     break;
                 case OutputType.Float:
-                    var f = _floatOutput0 + (_floatOutput1 - _floatOutput0) * x;
+                    var f = Math.Lerp(_floatOutput0, _floatOutput1, p);
                     _floatEvent.Invoke(f);
                     break;
                 case OutputType.Vector3:
-                    var v = _vector3Output0 + (_vector3Output1 - _vector3Output0) * x;
+                    var v = Math.Lerp(_vector3Output0, _vector3Output1, p);
                     _vector3Event.Invoke(v);
                     break;
             }
+        }
+
+        #endregion
+
+        #region MonoBehaviour Functions
+
+        void Start()
+        {
+            _value = new FloatInterpolator(0, _interpolator);
+        }
+
+        void Update()
+        {
+            if (_interpolator.enabled)
+                InvokeValueEvent(_value.Step());
         }
 
         #endregion

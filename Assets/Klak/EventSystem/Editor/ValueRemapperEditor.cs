@@ -33,6 +33,7 @@ namespace Klak
         SerializedProperty _inputCurve;
         SerializedProperty _modulationType;
         SerializedProperty _modulationCurve;
+        SerializedProperty _interpolator;
         SerializedProperty _outputType;
 
         SerializedProperty _threshold;
@@ -61,6 +62,7 @@ namespace Klak
             _inputCurve = serializedObject.FindProperty("_inputCurve");
             _modulationType = serializedObject.FindProperty("_modulationType");
             _modulationCurve = serializedObject.FindProperty("_modulationCurve");
+            _interpolator = serializedObject.FindProperty("_interpolator");
             _outputType = serializedObject.FindProperty("_outputType");
 
             _threshold = serializedObject.FindProperty("_threshold");
@@ -97,6 +99,7 @@ namespace Klak
                 EditorGUI.indentLevel--;
             }
 
+            EditorGUILayout.PropertyField(_interpolator);
             EditorGUILayout.PropertyField(_outputType);
 
             var showAllTypes = _outputType.hasMultipleDifferentValues;
