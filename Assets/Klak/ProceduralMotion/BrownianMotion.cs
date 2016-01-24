@@ -25,6 +25,7 @@ using UnityEngine;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Procedural Motion/Brownian Motion")]
     public class BrownianMotion : MonoBehaviour
     {
         #region Editable Properties

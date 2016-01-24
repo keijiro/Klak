@@ -25,6 +25,7 @@ using UnityEngine;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Event System/Transform Mapper")]
     public class TransformMapper : MonoBehaviour
     {
         #region Translation Settings

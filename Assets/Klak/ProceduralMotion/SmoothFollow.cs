@@ -27,6 +27,7 @@ using Klak.VectorMathExtension;
 namespace Klak
 {
     /// Follows a given transform smoothly
+    [AddComponentMenu("Klak/Procedural Motion/Smooth Follow")]
     public class SmoothFollow : MonoBehaviour
     {
         #region Nested Classes

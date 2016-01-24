@@ -26,6 +26,7 @@ using UnityEngine.Events;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Event System/Color Mapper")]
     public class ColorMapper : MonoBehaviour
     {
         #region Nested Public Classes

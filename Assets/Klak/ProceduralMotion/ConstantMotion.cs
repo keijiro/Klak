@@ -25,6 +25,7 @@ using UnityEngine;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Procedural Motion/Constant Motion")]
     public class ConstantMotion : MonoBehaviour
     {
         #region Nested Classes

@@ -26,6 +26,7 @@ using UnityEngine.Events;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Event System/Value Remapper")]
     public class ValueRemapper : MonoBehaviour
     {
         #region Nested Public Classes

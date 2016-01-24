@@ -26,6 +26,7 @@ using UnityEngine.Events;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Event System/Key Event Sender")]
     public class KeyEventSender : MonoBehaviour
     {
         #region Nested Public Classes

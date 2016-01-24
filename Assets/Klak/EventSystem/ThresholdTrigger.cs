@@ -26,6 +26,7 @@ using UnityEngine.Events;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Event System/Threshold Trigger")]
     public class ThresholdTrigger : MonoBehaviour
     {
         #region Editable Properties

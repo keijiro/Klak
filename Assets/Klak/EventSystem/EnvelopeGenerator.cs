@@ -28,6 +28,7 @@ using System.Collections.Generic;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Event System/Envelope Generator")]
     public class EnvelopeGenerator : MonoBehaviour
     {
         #region Public Nested Classes

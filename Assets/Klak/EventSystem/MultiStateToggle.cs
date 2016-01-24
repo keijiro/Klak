@@ -26,6 +26,7 @@ using UnityEngine.Events;
 
 namespace Klak
 {
+    [AddComponentMenu("Klak/Event System/Multi-State Toggle")]
     public class MultiStateToggle : MonoBehaviour
     {
         #region Nested Public Classes
