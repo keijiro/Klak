@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 //
 using UnityEngine;
+using Klak.Math;
 using Klak.VectorMathExtension;
 
 namespace Klak.Motion

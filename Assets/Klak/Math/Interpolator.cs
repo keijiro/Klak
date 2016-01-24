@@ -24,7 +24,7 @@
 using UnityEngine;
 using System;
 
-namespace Klak
+namespace Klak.Math
 {
     public struct FloatInterpolator
     {

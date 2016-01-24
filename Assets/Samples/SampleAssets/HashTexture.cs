@@ -1,5 +1,5 @@
 using UnityEngine;
-using Klak;
+using Klak.Math;
 
 public class HashTexture : MonoBehaviour
 {

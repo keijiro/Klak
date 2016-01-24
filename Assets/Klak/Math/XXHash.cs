@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 //
 
-namespace Klak
+namespace Klak.Math
 {
     /// xxHash algorithm
     public struct XXHash

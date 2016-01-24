@@ -22,10 +22,9 @@
 // THE SOFTWARE.
 //
 using UnityEngine;
-using System.Runtime.InteropServices;
 using Klak.VectorMathExtension;
 
-namespace Klak
+namespace Klak.Math
 {
     /// Exponential interpolation
     static class ETween

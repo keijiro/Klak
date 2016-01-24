@@ -23,9 +23,9 @@
 //
 using UnityEngine;
 
-namespace Klak
+namespace Klak.Math
 {
-    static class Math
+    static class BasicMath
     {
         public static float Lerp(float a, float b, float mix)
         {

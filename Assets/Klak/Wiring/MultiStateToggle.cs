@@ -23,6 +23,7 @@
 //
 using UnityEngine;
 using UnityEngine.Events;
+using Klak.Math;
 
 namespace Klak.Wiring
 {

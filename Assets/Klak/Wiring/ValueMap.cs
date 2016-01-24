@@ -23,6 +23,7 @@
 //
 using UnityEngine;
 using UnityEngine.Events;
+using Klak.Math;
 
 namespace Klak.Wiring
 {
@@ -182,15 +183,15 @@ namespace Klak.Wiring
                     _boolEvent.Invoke(p > _threshold);
                     break;
                 case OutputType.Int:
-                    var i = Math.Lerp(_intOutput0, _intOutput1, p);
+                    var i = BasicMath.Lerp(_intOutput0, _intOutput1, p);
                     _intEvent.Invoke((int)i);
                     break;
                 case OutputType.Float:
-                    var f = Math.Lerp(_floatOutput0, _floatOutput1, p);
+                    var f = BasicMath.Lerp(_floatOutput0, _floatOutput1, p);
                     _floatEvent.Invoke(f);
                     break;
                 case OutputType.Vector3:
-                    var v = Math.Lerp(_vector3Output0, _vector3Output1, p);
+                    var v = BasicMath.Lerp(_vector3Output0, _vector3Output1, p);
                     _vector3Event.Invoke(v);
                     break;
             }

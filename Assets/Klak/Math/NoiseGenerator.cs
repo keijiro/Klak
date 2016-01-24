@@ -23,7 +23,7 @@
 //
 using UnityEngine;
 
-namespace Klak
+namespace Klak.Math
 {
     /// Noise generator that provides Vector3/Quaternion values
     struct NoiseGenerator

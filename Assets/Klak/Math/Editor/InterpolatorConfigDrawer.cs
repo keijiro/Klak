@@ -24,7 +24,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Klak
+namespace Klak.Math
 {
     using Config = FloatInterpolator.Config;
 
