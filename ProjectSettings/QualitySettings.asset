@@ -8,7 +8,7 @@ QualitySettings:
   m_QualitySettings:
   - serializedVersion: 2
     name: Standard
-    pixelLightCount: 2
+    pixelLightCount: 3
     shadows: 2
     shadowResolution: 2
     shadowProjection: 1
@@ -20,7 +20,7 @@ QualitySettings:
     blendWeights: 2
     textureQuality: 0
     anisotropicTextures: 1
-    antiAliasing: 0
+    antiAliasing: 2
     softParticles: 0
     softVegetation: 1
     realtimeReflectionProbes: 1
