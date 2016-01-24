@@ -50,7 +50,7 @@ namespace Klak.Wiring
             serializedObject.Update();
 
             EditorGUILayout.HelpBox(
-                "This component receives signals with Toggle method.",
+                "Receives events with the Toggle method.",
                 MessageType.None);
 
             EditorGUILayout.PropertyField(_eventType);

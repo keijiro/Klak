@@ -70,6 +70,11 @@ namespace Klak.Wiring
                 _inputMode.hasMultipleDifferentValues ||
                 _inputMode.enumValueIndex == (int)EnvelopeGenerator.InputMode.Gate;
 
+            var helpText = showGateModeOptions ?
+                    "Receives events with the NoteOn/NoteOff methods." :
+                    "Receives events with the Trigger method.";
+
+            EditorGUILayout.HelpBox(helpText, MessageType.None);
             EditorGUILayout.PropertyField(_inputMode);
             EditorGUILayout.PropertyField(_attackTime);
 

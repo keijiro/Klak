@@ -31,7 +31,7 @@ namespace Klak
         public static void ShowInputValueNote()
         {
             EditorGUILayout.HelpBox(
-                "This component receives signals from inputValue property.",
+                "Receives float values from the inputValue property.",
                 MessageType.None);
         }
     }
