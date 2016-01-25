@@ -31,7 +31,6 @@ namespace Klak.Wiring
     public class ValueAnimationEditor : Editor
     {
         SerializedProperty _animations;
-        SerializedProperty _animationIndex;
         SerializedProperty _playOnStart;
         SerializedProperty _speed;
         SerializedProperty _valueEvent;
@@ -39,7 +38,6 @@ namespace Klak.Wiring
         void OnEnable()
         {
             _animations = serializedObject.FindProperty("_animations");
-            _animationIndex = serializedObject.FindProperty("_animationIndex"); 
             _playOnStart = serializedObject.FindProperty("_playOnStart");
             _speed = serializedObject.FindProperty("_speed");
             _valueEvent = serializedObject.FindProperty("_valueEvent");
@@ -51,7 +49,6 @@ namespace Klak.Wiring
 
             ShowAnimationList(_animations);
 
-            EditorGUILayout.PropertyField(_animationIndex);
             EditorGUILayout.PropertyField(_playOnStart);
             EditorGUILayout.PropertyField(_speed);
             EditorGUILayout.PropertyField(_valueEvent);

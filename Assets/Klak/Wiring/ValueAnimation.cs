@@ -44,10 +44,7 @@ namespace Klak.Wiring
         };
 
         [SerializeField]
-        int _animationIndex = 0;
-
-        [SerializeField]
-        bool _playOnStart = false;
+        bool _playOnStart = true;
 
         [SerializeField]
         float _speed = 1.0f;
@@ -59,38 +56,42 @@ namespace Klak.Wiring
 
         #region Public Properties And Methods
 
-        public int animationIndex {
-            get { return _animationIndex; }
-            set {
-                _animationIndex = Mathf.Clamp(value, 0, _animations.Length - 1);
-            }
-        }
-
         public float speed {
             get { return _speed; }
             set { _speed = value; }
         }
 
+        public bool isPlaying { get; set; }
         public float time { get; set; }
 
-        public bool isPlaying { get; set; }
+        public int animationIndex {
+            get { return _animationIndex; }
+        }
 
         public void Play(int index)
         {
-            animationIndex = index;
+            _animationIndex = Mathf.Clamp(index, 0, _animations.Length - 1);
+            isPlaying = true;
             time = 0;
-            isPlaying = true;
         }
 
-        public void Pause()
+        public void PlayNext()
         {
-            isPlaying = false;
+            _animationIndex = (_animationIndex + 1) % _animations.Length;
+            isPlaying = true;
+            time = 0;
         }
 
-        public void Resume()
+        public void TogglePlayState()
         {
-            isPlaying = true;
+            isPlaying = !isPlaying;
         }
+
+        #endregion
+
+        #region Private Members
+
+        int _animationIndex;
 
         #endregion
 

@@ -276,7 +276,6 @@ MonoBehaviour:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 0
-  _animationIndex: 0
   _playOnStart: 1
   _speed: .5
   _valueEvent:
@@ -305,9 +304,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1255256536}
   - {fileID: 1803570607}
   - {fileID: 1055225226}
+  - {fileID: 1255256536}
   m_Father: {fileID: 0}
   m_RootOrder: 7
 --- !u!1 &313181600
@@ -589,11 +588,11 @@ MonoBehaviour:
 
     Sends values that change with an animation curve.
 
-    z: stop animation
+    z: change animation
 
-    x: change animation
+    x: change playback speed
 
-    c: change speed'
+    c: pause/resume'
 --- !u!222 &461515363
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -655,7 +654,7 @@ GameObject:
   - 114: {fileID: 1055225228}
   - 114: {fileID: 1055225227}
   m_Layer: 0
-  m_Name: Key Input 3
+  m_Name: Key Input 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -672,7 +671,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 28414692}
-  m_RootOrder: 2
+  m_RootOrder: 1
 --- !u!114 &1055225227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -753,7 +752,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _eventType: 0
-  _keyCode: 99
+  _keyCode: 120
   _offValue: 0
   _onValue: 1
   _interpolator:
@@ -810,7 +809,7 @@ GameObject:
   - 4: {fileID: 1255256536}
   - 114: {fileID: 1255256537}
   m_Layer: 0
-  m_Name: Key Input 1
+  m_Name: Key Input 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -827,7 +826,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 28414692}
-  m_RootOrder: 0
+  m_RootOrder: 2
 --- !u!114 &1255256537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -840,7 +839,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _eventType: 0
-  _keyCode: 122
+  _keyCode: 99
   _offValue: 0
   _onValue: 1
   _interpolator:
@@ -850,7 +849,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 28414691}
-        m_MethodName: Pause
+        m_MethodName: TogglePlayState
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -924,9 +923,8 @@ GameObject:
   m_Component:
   - 4: {fileID: 1803570607}
   - 114: {fileID: 1803570609}
-  - 114: {fileID: 1803570608}
   m_Layer: 0
-  m_Name: Key Input 2
+  m_Name: Key Input 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -943,75 +941,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 28414692}
-  m_RootOrder: 1
---- !u!114 &1803570608
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1803570606}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e8a65ef658d7724f906f7a5932f4d86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _eventType: 0
-  _interpolator:
-    _interpolationType: 2
-    _interpolationSpeed: 5
-  _triggerEvents:
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 28414691}
-        m_MethodName: Play
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 28414691}
-        m_MethodName: Play
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 28414691}
-        m_MethodName: Play
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 2
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-  _stateValues:
-  - 0
-  _valueEvent:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Klak.Wiring.MultiStateToggle+ValueEvent, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+  m_RootOrder: 0
 --- !u!114 &1803570609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1024,7 +954,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _eventType: 0
-  _keyCode: 120
+  _keyCode: 122
   _offValue: 0
   _onValue: 1
   _interpolator:
@@ -1033,8 +963,8 @@ MonoBehaviour:
   _triggerEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1803570608}
-        m_MethodName: Toggle
+      - m_Target: {fileID: 28414691}
+        m_MethodName: PlayNext
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
