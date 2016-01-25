@@ -23,6 +23,7 @@
 //
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 namespace Klak
 {
@@ -66,7 +67,7 @@ namespace Klak
         {
             if (_frameCount == 0)
             {
-                System.IO.Directory.CreateDirectory("Capture");
+                Directory.CreateDirectory("Capture");
                 Time.captureFramerate = _frameRate;
             }
             else if (_frameCount > 0)

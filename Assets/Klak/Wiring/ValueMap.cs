@@ -24,6 +24,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Klak.Math;
+using System;
 
 namespace Klak.Wiring
 {
@@ -40,16 +41,16 @@ namespace Klak.Wiring
             Bool, Int, Float, Vector3
         }
 
-        [System.Serializable]
+        [Serializable]
         public class BoolEvent : UnityEvent<bool> {}
 
-        [System.Serializable]
+        [Serializable]
         public class IntEvent : UnityEvent<int> {}
 
-        [System.Serializable]
+        [Serializable]
         public class FloatEvent : UnityEvent<float> {}
 
-        [System.Serializable]
+        [Serializable]
         public class Vector3Event : UnityEvent<Vector3> {}
 
         #endregion

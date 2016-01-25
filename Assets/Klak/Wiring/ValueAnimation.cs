@@ -23,6 +23,7 @@
 //
 using UnityEngine;
 using UnityEngine.Events;
+using System;
 
 namespace Klak.Wiring
 {
@@ -31,7 +32,7 @@ namespace Klak.Wiring
     {
         #region Nested Public Classes
 
-        [System.Serializable]
+        [Serializable]
         public class ValueEvent : UnityEvent<float> {}
 
         #endregion

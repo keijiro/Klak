@@ -24,6 +24,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Klak.Math;
+using System;
 
 namespace Klak.Wiring
 {
@@ -34,7 +35,7 @@ namespace Klak.Wiring
 
         public enum EventType { Trigger, Value }
 
-        [System.Serializable]
+        [Serializable]
         public class ValueEvent : UnityEvent<float> {}
 
         #endregion

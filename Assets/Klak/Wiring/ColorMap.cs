@@ -23,6 +23,7 @@
 //
 using UnityEngine;
 using UnityEngine.Events;
+using System;
 
 namespace Klak.Wiring
 {
@@ -33,7 +34,7 @@ namespace Klak.Wiring
 
         public enum ColorMode { Gradient, ColorArray }
 
-        [System.Serializable]
+        [Serializable]
         public class ColorEvent : UnityEvent<Color> {}
 
         #endregion

@@ -23,6 +23,7 @@
 //
 using UnityEngine;
 using UnityEngine.Events;
+using System;
 using Klak.Math;
 
 namespace Klak.Wiring
@@ -36,7 +37,7 @@ namespace Klak.Wiring
             Trigger, Gate, Toggle, Value
         }
 
-        [System.Serializable]
+        [Serializable]
         public class ValueEvent : UnityEvent<float> {}
 
         #endregion

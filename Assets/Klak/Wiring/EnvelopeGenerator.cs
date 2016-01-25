@@ -25,6 +25,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using System;
 
 namespace Klak.Wiring
 {
@@ -35,7 +36,7 @@ namespace Klak.Wiring
 
         public enum InputMode { Trigger, Gate }
 
-        [System.Serializable]
+        [Serializable]
         public class EnvelopeEvent : UnityEvent<float> {}
 
         #endregion
