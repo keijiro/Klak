@@ -41,6 +41,7 @@ Stuff in the current collection
  - Float value to transform converter
  - Float value modulator
  - Float value animation
+ - System property setter
 
 License
 -------
