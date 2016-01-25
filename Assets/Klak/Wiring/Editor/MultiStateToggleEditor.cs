@@ -98,9 +98,5 @@ namespace Klak.Wiring
 
             EditorGUI.indentLevel --;
         }
-
-        void ShowStateValueList()
-        {
-        }
     }
 }
