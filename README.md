@@ -12,14 +12,6 @@ Unity.
 Stuff in the current collection
 -------------------------------
 
-- Extension methods for the standard classes
- - Vector4/Quaternion converter
- - Material property setter
-
-- Basic procedural motion
- - Constant motion
- - Brownian motion
-
 - Noise/Random number
  - Perlin noise
  - Reproducible random number series with xxHash
@@ -30,17 +22,24 @@ Stuff in the current collection
  - Classic spring smoothing
  - Critically damped spring smoothing
 
-- Key input event sender
-- AR/ADSR-style envelope generator
+- Extension methods for the standard classes
+ - Vector4/Quaternion converter
+ - Material property setter
 
-- Components for event handling
- - Float-to-color event converter
- - Float-to-transform event converter
- - Float value remapper
+- Image sequence writer
+
+- Klak.Motion: basic procesural motion
+ - Constant motion
+ - Brownian motion
+
+- Klak.Wiring: event to property patching system
+ - Key input event sender
+ - AR/ADSR-style envelope generator
  - Threshold trigger
  - Multi-state toggle
- 
-- Image sequence writer
+ - Float value to color converter
+ - Float value to transform converter
+ - Float value modulator
 
 License
 -------
