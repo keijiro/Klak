@@ -99,7 +99,7 @@ namespace Klak.Math
 
         public float Range(float min, float max, int data)
         {
-            return Value01(data) % (max - min) + min;
+            return Value01(data) * (max - min) + min;
         }
 
         #endregion
