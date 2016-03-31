@@ -52,7 +52,16 @@ namespace Klak.Wiring
         }
 
         public float inputValue {
-            set { _currentValue = value; }
+            set {
+                _currentValue = value;
+
+                if (_currentValue >= _threshold &&
+                    _currentState != State.Enabled)
+                {
+                    _onEvent.Invoke();
+                    _currentState = State.Enabled;
+                }
+            }
         }
 
         #endregion
@@ -73,11 +82,6 @@ namespace Klak.Wiring
         {
             if (_currentValue >= _threshold)
             {
-                if (_currentState != State.Enabled)
-                {
-                    _onEvent.Invoke();
-                    _currentState = State.Enabled;
-                }
                 _delayTimer = 0;
             }
             else if (_currentValue < _threshold &&
