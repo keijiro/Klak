@@ -48,6 +48,11 @@ namespace Klak.Wiring.Patcher
             get { return _typeName; }
         }
 
+        // Validity check
+        public bool isValid {
+            get { return _instance != null; }
+        }
+
         // Is this window selected in the editor?
         public bool isActive {
             get { return _activeWindowID == _windowID; }

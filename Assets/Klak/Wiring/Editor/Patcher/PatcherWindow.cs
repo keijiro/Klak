@@ -108,11 +108,12 @@ namespace Klak.Wiring.Patcher
         {
             _patchManager = new PatchManager();
             _nodeFactory = new NodeFactory();
+            _mainViewSize = Vector2.one * 300; // minimum view size
 
-            ResetState();
+            _patchManager.Reset();
+            _patch = _patchManager.RetrieveLastSelected();
 
-            Undo.undoRedoPerformed += ResetState;
-            EditorApplication.playmodeStateChanged += ResetState;
+            Undo.undoRedoPerformed += OnUndo;
             EditorApplication.hierarchyWindowChanged += OnHierarchyWindowChanged;
         }
 
@@ -125,19 +126,41 @@ namespace Klak.Wiring.Patcher
 
             _patchManager = null;
             _nodeFactory = null;
+            _patch = null;
 
-            Undo.undoRedoPerformed -= ResetState;
-            EditorApplication.playmodeStateChanged -= ResetState;
+            Undo.undoRedoPerformed -= OnUndo;
             EditorApplication.hierarchyWindowChanged -= OnHierarchyWindowChanged;
+        }
+
+        void OnUndo()
+        {
+            // We have to rescan patches and nodes,
+            // because there may be an unknown ones.
+            _patchManager.Reset();
+            if (_patch != null && _patch.isValid) _patch.Rescan();
+
+            // Manually update the GUI.
+            Repaint();
         }
 
         void OnFocus()
         {
-            if (_hierarchyChanged && _patchManager != null) ResetState();
+            // Do nothing if not yet enabled.
+            if (_patchManager == null) return;
+
+            // Rescan if there are changes in the hierarchy while unfocused.
+            if (_hierarchyChanged) {
+                _patchManager.Reset();
+                if (_patch != null && _patch.isValid) _patch.Rescan();
+            }
+
+            // This is a good timing to reset the scroll view size.
+            _mainViewSize = Vector2.one * 300; // minimum view size
         }
 
         void OnLostFocus()
         {
+            // To record hierarchy change while unfocused.
             _hierarchyChanged = false;
         }
 
@@ -148,9 +171,30 @@ namespace Klak.Wiring.Patcher
 
         void OnGUI()
         {
+            // Do nothing while play mode.
+            if (isPlayMode) {
+                DrawPlaceholderGUI("Not available in play mode");
+                return;
+            }
+
+            // If there is something wrong with the patch manager, reset it.
+            if (!_patchManager.isValid) _patchManager.Reset();
+
+            // Patch validity check.
+            if (_patch != null)
+                if (!_patch.isValid)
+                    _patch = null; // Seems like not good. Abandon it.
+                else if (!_patch.CheckNodesValidity())
+                    _patch.Rescan(); // Some nodes are not good. Rescan them.
+
+            // Get a patch if no one is selected.
+            if (_patch == null)
+                _patch = _patchManager.RetrieveLastSelected();
+
+            // Draw a placeholder if no patch is available.
             // Disable GUI during the play mode, or when no patch is available.
-            if (isPlayMode || _patch == null) {
-                DrawNoPatchMessage();
+            if ( _patch == null) {
+                DrawPlaceholderGUI("No patch available");
                 return;
             }
 
@@ -259,10 +303,7 @@ namespace Klak.Wiring.Patcher
         // Find and get the active node.
         Node GetActiveNode()
         {
-            if (_patch != null && _patch.isValid)
-                return _patch.nodeList.FirstOrDefault(n => n.isActive);
-            else
-                return null;
+            return _patch.nodeList.FirstOrDefault(n => n.isActive);
         }
 
         // Reset the internal state.
@@ -337,8 +378,9 @@ namespace Klak.Wiring.Patcher
                 // Remove the node.
                 removeNode.RemoveFromPatch(_patch);
 
-                // Reset the editor state.
-                ResetState();
+                // Rescan the patch and repaint.
+                _patch.Rescan();
+                Repaint();
             }
 
             // Inlet button pressed
@@ -462,15 +504,15 @@ namespace Klak.Wiring.Patcher
             EditorGUILayout.EndVertical();
         }
 
-        // "No patch" message
-        void DrawNoPatchMessage()
+        // Draw empty placeholder GUI.
+        void DrawPlaceholderGUI(string message)
         {
             GUILayout.BeginVertical();
             GUILayout.FlexibleSpace();
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label("No patch available", EditorStyles.largeLabel);
+            GUILayout.Label(message, EditorStyles.largeLabel);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 

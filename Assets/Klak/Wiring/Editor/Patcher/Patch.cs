@@ -82,6 +82,12 @@ namespace Klak.Wiring.Patcher
             }
         }
 
+        // Check validity of all nodes in this patch.
+        public bool CheckNodesValidity()
+        {
+            return !_nodeList.Exists(p => p == null);
+        }
+
         // Add a node instance to the patch.
         public void AddNodeInstance(Wiring.NodeBase nodeInstance)
         {

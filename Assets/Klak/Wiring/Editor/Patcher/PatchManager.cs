@@ -37,6 +37,11 @@ namespace Klak.Wiring.Patcher
             get { return _instances.Length; }
         }
 
+        // Validity check
+        public bool isValid {
+            get { return !Array.Exists(_instances, p => p == null); }
+        }
+
         // Constructor
         public PatchManager()
         {
