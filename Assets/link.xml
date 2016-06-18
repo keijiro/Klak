@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="UnityEngine">
+    <type fullname="UnityEngine.Light" preserve="all" />
+  </assembly>
+</linker>
