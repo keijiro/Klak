@@ -51,11 +51,23 @@ namespace Klak.Math
             }
 
             [SerializeField, Range(0.1f, 50)]
-            float _interpolationSpeed = 5;
+            float _interpolationSpeed = 10;
 
             public float interpolationSpeed {
                 get { return _interpolationSpeed; }
                 set { _interpolationSpeed = value; }
+            }
+
+            public Config() {}
+
+            public Config(InterpolationType type, float speed)
+            {
+                _interpolationType = type;
+                _interpolationSpeed = speed;
+            }
+
+            public static Config Direct {
+                get { return new Config(InterpolationType.Direct, 10); }
             }
         }
 
