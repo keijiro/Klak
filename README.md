@@ -4,7 +4,7 @@ Klak
 ![gif](http://49.media.tumblr.com/dfba0ff232f0bb76dc10a25026a888a2/tumblr_o0q7hmMfYU1qio469o1_400.gif)
 ![gif](http://49.media.tumblr.com/c2a6d1359aefd3c205a89fec7561ebbd/tumblr_o0sabaXTwl1qio469o1_400.gif)
 
-![components](https://41.media.tumblr.com/4932807bd1f18d005d0c6369e88a952b/tumblr_o0y7kqOFQZ1qio469o1_640.png)
+![wiring](http://67.media.tumblr.com/cfd5688cb7b9bc7e6c50ae9fdc54c810/tumblr_o8xa29BTBw1qio469o1_540.gif)
 
 *Klak* is a collection of utilities that are made for creative coding with
 Unity.
@@ -32,16 +32,7 @@ Stuff in the current collection
  - Constant motion
  - Brownian motion
 
-- Klak.Wiring: event to property patching system
- - Key input event sender
- - AR/ADSR-style envelope generator
- - Threshold trigger
- - Multi-state toggle
- - Float value to color converter
- - Float value to transform converter
- - Float value modulator
- - Float value animation
- - System property setter
+- Klak.Wiring: node-based patching system
 
 License
 -------
