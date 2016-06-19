@@ -34,6 +34,13 @@ Stuff in the current collection
 
 - Klak.Wiring: node-based patching system
 
+See also
+--------
+
+- [MidiKalk](https://github.com/keijiro/MidiKlak) - MIDI extension for Klak
+- [OscKlak](https://github.com/keijiro/OscKlak) - OSC (Open Sound Control)
+  extension for Klak
+
 License
 -------
 
