@@ -37,7 +37,7 @@ Stuff in the current collection
 See also
 --------
 
-- [MidiKalk](https://github.com/keijiro/MidiKlak) - MIDI extension for Klak
+- [MidiKlak](https://github.com/keijiro/MidiKlak) - MIDI extension for Klak
 - [OscKlak](https://github.com/keijiro/OscKlak) - OSC (Open Sound Control)
   extension for Klak
 
