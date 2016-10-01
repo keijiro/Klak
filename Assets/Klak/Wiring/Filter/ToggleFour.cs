@@ -113,7 +113,7 @@ namespace Klak.Wiring
 
         void Start()
         {
-            _value = new FloatInterpolator(0, _interpolator);
+            _value = new FloatInterpolator(_value1, _interpolator);
             if (_sendOnStartUp) _state1Event.Invoke();
         }
 

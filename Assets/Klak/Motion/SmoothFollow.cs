@@ -47,10 +47,10 @@ namespace Klak.Motion
         [SerializeField]
         Transform _target;
 
-        [SerializeField, Range(0, 10)]
+        [SerializeField, Range(0, 20)]
         float _positionSpeed = 2;
 
-        [SerializeField, Range(0, 10)]
+        [SerializeField, Range(0, 20)]
         float _rotationSpeed = 2;
 
         [SerializeField]
@@ -91,6 +91,12 @@ namespace Klak.Motion
         public float jumpAngle {
             get { return _jumpAngle; }
             set { _jumpAngle = value; }
+        }
+
+        public void Snap()
+        {
+            if (_positionSpeed > 0) transform.position = target.position;
+            if (_rotationSpeed > 0) transform.rotation = target.rotation;
         }
 
         public void JumpRandomly()
