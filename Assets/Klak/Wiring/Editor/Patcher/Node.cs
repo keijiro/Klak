@@ -28,24 +28,36 @@ using UnityEditor.Events;
 using System.Collections.Generic;
 using System.Reflection;
 
+using Graphs = UnityEditor.Graphs;
+
 namespace Klak.Wiring.Patcher
 {
-    // Editor representation of node
-    public class Node
+    public class Node : Graphs.Node
     {
-        #region Public properties
+        #region Public methods
 
-        // Display name used in UIs
-        public string displayName {
-            get {
-                if (_instance.name == _typeName) return _typeName;
-                return _instance.name + " (" + _typeName + ")";
-            }
-        }
+        // Factory method
+        static public Node Create(Wiring.NodeBase instance)
+        {
+            var node = CreateInstance<Node>();
+            node.hideFlags = HideFlags.HideAndDontSave;
 
-        // Display name of the node type
-        public string typeName {
-            get { return _typeName; }
+            // Object references
+            node._instance = instance;
+            node._serializedObject = new UnityEditor.SerializedObject(instance);
+            node._serializedPosition = node._serializedObject.FindProperty("_wiringNodePosition");
+
+            // Basic information
+            node.name = instance.GetInstanceID().ToString();
+            node.title = instance.name;
+
+            // Window initialization
+            node.InitializePosition();
+
+            // Slot initialization
+            node.InitializeSlots();
+
+            return node;
         }
 
         // Validity check
@@ -53,49 +65,135 @@ namespace Klak.Wiring.Patcher
             get { return _instance != null; }
         }
 
-        // Is this window selected in the editor?
-        public bool isActive {
-            get { return _activeWindowID == _windowID; }
+        #endregion
+
+        #region Private members
+
+        // Runtime instance of this node
+        Wiring.NodeBase _instance;
+
+        // Serialized property accessor
+        SerializedObject _serializedObject;
+        SerializedProperty _serializedPosition;
+
+        // Restore/Initialize position
+        void InitializePosition()
+        {
+            var position = _serializedPosition.vector2Value;
+            if (position == Wiring.NodeBase.uninitializedNodePosition)
+            {
+                // Serialize the node position.
+                _serializedPosition.vector2Value = this.position.position;
+                _serializedObject.ApplyModifiedProperties();
+            }
+            else
+            {
+                // Use the serialized window position.
+                this.position.position = position;
+            }
         }
 
-        // Is this window focused (accepting keyboard input)?
-        public bool isFocused {
-            get { return EditorGUIUtility.keyboardControl == _controlID; }
+        // Convert all inlets/outlets into node slots.
+        void InitializeSlots()
+        {
+            // Enumeration flags: all public and non-public members
+            const BindingFlags flags =
+                BindingFlags.Public |
+                BindingFlags.NonPublic |
+                BindingFlags.Instance;
+
+            // Inlets (property)
+            foreach (var prop in _instance.GetType().GetProperties(flags))
+            {
+                var attrs = prop.GetCustomAttributes(typeof(Wiring.InletAttribute), true);
+                if (attrs.Length == 0) continue;
+
+                // Register the setter method.
+                var slot = AddInputSlot("set_" + prop.Name);
+
+                // Apply the standard nicifying rule.
+                slot.title = ObjectNames.NicifyVariableName(prop.Name);
+            }
+
+            // Inlets (method)
+            foreach (var method in _instance.GetType().GetMethods(flags))
+            {
+                var attrs = method.GetCustomAttributes(typeof(Wiring.InletAttribute), true);
+                if (attrs.Length == 0) continue;
+
+                var slot = AddInputSlot(method.Name);
+
+                // Apply the standard nicifying rule.
+                slot.title = ObjectNames.NicifyVariableName(method.Name);
+            }
+
+            // Outlets (UnityEvent members)
+            foreach (var field in _instance.GetType().GetFields(flags))
+            {
+                var attrs = field.GetCustomAttributes(typeof(Wiring.OutletAttribute), true);
+                if (attrs.Length == 0) continue;
+
+                var slot = AddOutputSlot(field.Name);
+
+                // Apply the standard nicifying rule.
+                var title = ObjectNames.NicifyVariableName(field.Name);
+
+                // Remove tailing "Event".
+                if (title.EndsWith(" Event"))
+                    title = title.Substring(0, title.Length - 6);
+
+                slot.title = title;
+            }
         }
 
-        // Window position
-        public Vector2 windowPosition {
-            get { return _serializedPosition.vector2Value; }
+        public void ScanSlots()
+        {
+            // Enumeration flags: all public and non-public members
+            const BindingFlags flags =
+                BindingFlags.Public |
+                BindingFlags.NonPublic |
+                BindingFlags.Instance;
+
+            foreach (var slot in outputSlots)
+            {
+                var field = _instance.GetType().GetField(slot.name, flags);
+                if (field == null) continue;
+
+                var boundEvent = (UnityEventBase)field.GetValue(_instance);
+                var targetCount = boundEvent.GetPersistentEventCount();
+
+                for (var i = 0; i < targetCount; i++)
+                {
+                    var target = boundEvent.GetPersistentTarget(i);
+
+                    // Ignore it if it's a null event or the target is not a node.
+                    if (target == null || !(target is Wiring.NodeBase)) continue;
+
+                    // Try to retrieve the linked inlet.
+                    var targetNode = graph[target.GetInstanceID().ToString()];
+                    var methodName = boundEvent.GetPersistentMethodName(i);
+
+                    if (targetNode != null)
+                    {
+                        var inlet = targetNode[methodName];
+                        if (inlet != null) graph.Connect(slot, inlet);
+                    }
+                }
+            }
         }
 
         #endregion
+    }
 
-        #region Public methods
-
-        // Constructor
-        public Node(Wiring.NodeBase instance)
+    [CustomEditor(typeof(Node))]
+    class NodeEditor : Editor
+    {
+        public override void OnInspectorGUI()
         {
-            _instance = instance;
-            _typeName = ObjectNames.NicifyVariableName(_instance.GetType().Name);
-            _windowID = _windowCounter++;
-
-            // Inlets and outlets
-            _inlets = new List<Inlet>();
-            _outlets = new List<Outlet>();
-            InitializeInletsAndOutlets();
-
-            // Window position
-            _serializedObject = new UnityEditor.SerializedObject(_instance);
-            _serializedPosition = _serializedObject.FindProperty("_wiringNodePosition");
-            ValidatePosition();
         }
+    }
 
-        // Check if this is a representation of a given instance.
-        public bool IsRepresentationOf(Wiring.NodeBase instance)
-        {
-            return _instance == instance;
-        }
-
+    /*
         // Remove itself from the patch.
         public void RemoveFromPatch(Patch patch)
         {
@@ -211,55 +309,6 @@ namespace Klak.Wiring.Patcher
             return UnityEditor.Editor.CreateEditor(_instance);
         }
 
-        // Draw lines of the links from this node.
-        public bool DrawLinkLines(Patch patch)
-        {
-            // Check if the position information is ready.
-            if (_inlets.Count > 0 &&
-                _inlets[0].buttonRect.center == Vector2.zero) return false;
-
-            if (_outlets.Count > 0 &&
-                _outlets[0].buttonRect.center == Vector2.zero) return false;
-
-            // Make cache and draw all the lines.
-            if (_cachedLinks == null) CacheLinks(patch);
-            foreach (var link in _cachedLinks) link.DrawLine();
-            return true;
-        }
-
-        #endregion
-
-        #region Private fields
-
-        // Runtime instance
-        Wiring.NodeBase _instance;
-        string _typeName;
-
-        // Inlet/outlet list
-        List<Inlet> _inlets;
-        List<Outlet> _outlets;
-
-        // Cached connection info
-        List<NodeLink> _cachedLinks;
-
-        // Serialized property accessor
-        SerializedObject _serializedObject;
-        SerializedProperty _serializedPosition;
-
-        // GUI
-        int _windowID;
-        int _controlID;
-
-        // Window ID of currently selected window
-        static int _activeWindowID;
-
-        // The total count of windows (used to generate window IDs)
-        static int _windowCounter;
-
-        #endregion
-
-        #region Private properties and methods
-
         // Window GUI function
         void OnWindowGUI(int id)
         {
@@ -301,97 +350,6 @@ namespace Klak.Wiring.Patcher
                 if (e.commandName == "Delete" || e.commandName == "SoftDelete")
                     FeedbackQueue.Enqueue(new FeedbackQueue.DeleteNodeRecord(this));
         }
-
-        // Validate the window position.
-        void ValidatePosition()
-        {
-            // Initialize the node position if not yet.
-            var position = _serializedPosition.vector2Value;
-            if (position == Wiring.NodeBase.uninitializedNodePosition)
-            {
-                // Calculate the initial window position with the window ID.
-                var x = (_windowID % 8 + 1) * 50;
-                var y = (_windowID % 16 + 1) * 20;
-                _serializedPosition.vector2Value = new Vector2(x, y);
-                _serializedObject.ApplyModifiedProperties();
-            }
-        }
-
-        // Initialize all inlets/outlets from the node instance with using reflection.
-        void InitializeInletsAndOutlets()
-        {
-            // Enumeration flags: all public and non-public members
-            const BindingFlags flags =
-                BindingFlags.Public |
-                BindingFlags.NonPublic |
-                BindingFlags.Instance;
-
-            // Inlets (property)
-            foreach (var prop in _instance.GetType().GetProperties(flags))
-            {
-                var attrs = prop.GetCustomAttributes(typeof(Wiring.InletAttribute), true);
-                if (attrs.Length == 0) continue;
-
-                _inlets.Add(new Inlet(prop.GetSetMethod().Name, prop.Name));
-            }
-
-            // Inlets (method)
-            foreach (var method in _instance.GetType().GetMethods(flags))
-            {
-                var attrs = method.GetCustomAttributes(typeof(Wiring.InletAttribute), true);
-                if (attrs.Length == 0) continue;
-                
-                _inlets.Add(new Inlet(method.Name, method.Name));
-            }
-
-            // Outlets (UnityEvent members)
-            foreach (var field in _instance.GetType().GetFields(flags))
-            {
-                var attrs = field.GetCustomAttributes(typeof(Wiring.OutletAttribute), true);
-                if (attrs.Length == 0) continue;
-
-                var evt = (UnityEventBase)field.GetValue(_instance);
-                _outlets.Add(new Outlet(field.Name, evt));
-            }
-        }
-
-        // Get an inlet with a given name.
-        Inlet GetInletWithName(string name)
-        {
-            foreach (var inlet in _inlets)
-                if (inlet.methodName == name) return inlet;
-            return null;
-        }
-
-        // Enumerate all links from the outlets and cache them.
-        void CacheLinks(Patch patch)
-        {
-            _cachedLinks = new List<NodeLink>();
-
-            foreach (var outlet in _outlets)
-            {
-                // Scan all the events from the outlet.
-                var boundEvent = outlet.boundEvent;
-                var targetCount = boundEvent.GetPersistentEventCount();
-                for (var i = 0; i < targetCount; i++)
-                {
-                    var target = boundEvent.GetPersistentTarget(i);
-
-                    // Ignore it if it's a null event or the target is not a node.
-                    if (target == null || !(target is Wiring.NodeBase)) continue;
-
-                    // Try to retrieve the linked inlet.
-                    var targetNode = patch.GetNodeOfInstance((Wiring.NodeBase)target);
-                    var methodName = boundEvent.GetPersistentMethodName(i);
-                    var inlet = targetNode.GetInletWithName(methodName);
-
-                    // Cache it if it's a valid link.
-                    if (targetNode != null && inlet != null)
-                        _cachedLinks.Add(new NodeLink(this, outlet, targetNode, inlet));
-                }
-            }
-        }
-
-        #endregion
     }
+    */
 }

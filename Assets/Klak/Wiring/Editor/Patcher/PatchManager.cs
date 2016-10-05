@@ -61,21 +61,21 @@ namespace Klak.Wiring.Patcher
         }
 
         // Determine the index of a given patch.
-        public int GetIndexOf(Patch patch)
+        public int GetIndexOf(Graph graph)
         {
             return Array.FindIndex(
-                _instances, i => patch.IsRepresentationOf(i)
+                _instances, i => graph.IsRepresentationOf(i)
             );
         }
 
         // Create an editor representation of the patch at the index.
-        public Patch RetrieveAt(int index)
+        public Graph RetrieveAt(int index)
         {
-            return new Patch(_instances[index]);
+            return Graph.CreateFromPatch(_instances[index]);
         }
 
         // Create an editor representation of the previously chosesn patch.
-        public Patch RetrieveLastSelected()
+        public Graph RetrieveLastSelected()
         {
             var instance = Array.Find(
                 _instances, i => i._wiringSelected
@@ -85,14 +85,14 @@ namespace Klak.Wiring.Patcher
             if (instance == null && _instances.Length > 0)
                 instance = _instances[0];
 
-            return instance == null ? null : new Patch(instance);
+            return instance == null ? null : Graph.CreateFromPatch(instance);
         }
 
         // Select a given patch for later use.
-        public void Select(Patch patch)
+        public void Select(Graph graph)
         {
             foreach (var instance in _instances)
-                instance._wiringSelected = patch.IsRepresentationOf(instance);
+                instance._wiringSelected = graph.IsRepresentationOf(instance);
         }
 
         #endregion

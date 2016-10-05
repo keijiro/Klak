@@ -27,6 +27,7 @@ using System.Collections.Generic;
 
 namespace Klak.Wiring.Patcher
 {
+    /*
     // Queue class used to feedback user actions from UI controls
     public static class FeedbackQueue
     {
@@ -99,4 +100,5 @@ namespace Klak.Wiring.Patcher
 
         #endregion
     }
+    */
 }

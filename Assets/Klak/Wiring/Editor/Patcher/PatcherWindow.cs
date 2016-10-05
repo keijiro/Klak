@@ -39,8 +39,9 @@ namespace Klak.Wiring.Patcher
         {
             var window = EditorWindow.GetWindow<PatcherWindow>("Patcher");
 
-            window._patch = new Patch(patchInstance);
-            window._patchManager.Select(window._patch);
+            window._graph = Graph.CreateFromPatch(patchInstance);
+            window._graphGUI = window._graph.GetEditor();
+            window._patchManager.Select(window._graph);
 
             window.Show();
         }
@@ -54,48 +55,18 @@ namespace Klak.Wiring.Patcher
 
         #endregion
 
-        #region Wiring state class
-
-        class WiringState
-        {
-            public Node node;
-            public Inlet inlet;
-            public Outlet outlet;
-
-            public WiringState(Node node, Inlet inlet)
-            {
-                this.node = node;
-                this.inlet = inlet;
-            }
-
-            public WiringState(Node node, Outlet outlet)
-            {
-                this.node = node;
-                this.outlet = outlet;
-            }
-        }
-
-        #endregion
-
         #region Private fields
 
         // Currently editing patch
-        Patch _patch;
+        Graph _graph;
+        GraphGUI _graphGUI;
 
         // Helper objects
         PatchManager _patchManager;
-        NodeFactory _nodeFactory;
-
-        // Wiring state (null = not wiring now)
-        WiringState _wiring;
+        //NodeFactory _nodeFactory;
 
         // Node property editor
         Editor _propertyEditor;
-
-        // View size and positions
-        Vector2 _mainViewSize;
-        Vector2 _scrollMain;
-        Vector2 _scrollSide;
 
         // Hierarchy change flag
         bool _hierarchyChanged;
@@ -107,14 +78,16 @@ namespace Klak.Wiring.Patcher
         void OnEnable()
         {
             _patchManager = new PatchManager();
-            _nodeFactory = new NodeFactory();
-            _mainViewSize = Vector2.one * 300; // minimum view size
+            //_nodeFactory = new NodeFactory();
+            //_mainViewSize = Vector2.one * 300; // minimum view size
 
             _patchManager.Reset();
-            _patch = _patchManager.RetrieveLastSelected();
+            _graph = _patchManager.RetrieveLastSelected();
 
+            /*
             Undo.undoRedoPerformed += OnUndo;
             EditorApplication.hierarchyWindowChanged += OnHierarchyWindowChanged;
+            */
         }
 
         void OnDisable()
@@ -125,11 +98,13 @@ namespace Klak.Wiring.Patcher
             }
 
             _patchManager = null;
-            _nodeFactory = null;
-            _patch = null;
+            //_nodeFactory = null;
+            _graph = null;
 
+            /*
             Undo.undoRedoPerformed -= OnUndo;
             EditorApplication.hierarchyWindowChanged -= OnHierarchyWindowChanged;
+            */
         }
 
         void OnUndo()
@@ -137,7 +112,7 @@ namespace Klak.Wiring.Patcher
             // We have to rescan patches and nodes,
             // because there may be an unknown ones.
             _patchManager.Reset();
-            if (_patch != null && _patch.isValid) _patch.Rescan();
+            if (_graph != null && _graph.isValid) _graph.RescanPatch();
 
             // Manually update the GUI.
             Repaint();
@@ -151,11 +126,11 @@ namespace Klak.Wiring.Patcher
             // Rescan if there are changes in the hierarchy while unfocused.
             if (_hierarchyChanged) {
                 _patchManager.Reset();
-                if (_patch != null && _patch.isValid) _patch.Rescan();
+                if (_graph != null && _graph.isValid) _graph.RescanPatch();
             }
 
             // This is a good timing to reset the scroll view size.
-            _mainViewSize = Vector2.one * 300; // minimum view size
+            //_mainViewSize = Vector2.one * 300; // minimum view size
         }
 
         void OnLostFocus()
@@ -181,19 +156,19 @@ namespace Klak.Wiring.Patcher
             if (!_patchManager.isValid) _patchManager.Reset();
 
             // Patch validity check.
-            if (_patch != null)
-                if (!_patch.isValid)
-                    _patch = null; // Seems like not good. Abandon it.
-                else if (!_patch.CheckNodesValidity())
-                    _patch.Rescan(); // Some nodes are not good. Rescan them.
+            if (_graph != null)
+                if (!_graph.isValid)
+                    _graph = null; // Seems like not good. Abandon it.
+                else if (!_graph.CheckNodesValidity())
+                    _graph.RescanPatch(); // Some nodes are not good. Rescan them.
 
             // Get a patch if no one is selected.
-            if (_patch == null)
-                _patch = _patchManager.RetrieveLastSelected();
+            if (_graph == null)
+                _graph = _patchManager.RetrieveLastSelected();
 
             // Draw a placeholder if no patch is available.
             // Disable GUI during the play mode, or when no patch is available.
-            if ( _patch == null) {
+            if ( _graph == null) {
                 DrawPlaceholderGUI("No patch available");
                 return;
             }
@@ -202,11 +177,11 @@ namespace Klak.Wiring.Patcher
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
             // - Create node menu
-            _nodeFactory.CreateNodeMenuGUI(_patch);
-            GUILayout.Space(100);
+            //_nodeFactory.CreateNodeMenuGUI(_patch);
+            //GUILayout.Space(100);
 
             // - Patch selector
-            var patchIndex = _patchManager.GetIndexOf(_patch);
+            var patchIndex = _patchManager.GetIndexOf(_graph);
             var newPatchIndex = EditorGUILayout.Popup(
                 patchIndex, _patchManager.MakeNameList(),
                 EditorStyles.toolbarDropDown
@@ -219,32 +194,26 @@ namespace Klak.Wiring.Patcher
             // View area
             EditorGUILayout.BeginHorizontal();
 
+            _graphGUI.BeginGraphGUI(this, new Rect(0, 17, position.width, position.height - 17));
+            _graphGUI.OnGraphGUI();
+            _graphGUI.EndGraphGUI();
+
+/*
             // - Main view
             DrawMainViewGUI();
 
             // - Side view (property editor)
             DrawSideBarGUI();
+            */
 
             EditorGUILayout.EndHorizontal();
 
             // Re-initialize the editor if the patch selection was changed.
             if (patchIndex != newPatchIndex)
             {
-                _patch = _patchManager.RetrieveAt(newPatchIndex);
-                _patchManager.Select(_patch);
+                _graph = _patchManager.RetrieveAt(newPatchIndex);
+                _patchManager.Select(_graph);
                 Repaint();
-            }
-
-            // Cancel wiring with a mouse click or hitting the esc key.
-            if (_wiring != null)
-            {
-                var e = Event.current;
-                if (e.type == EventType.MouseUp ||
-                    (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape))
-                {
-                    _wiring = null;
-                    e.Use();
-                }
             }
         }
 
@@ -252,6 +221,7 @@ namespace Klak.Wiring.Patcher
 
         #region Wiring functions
 
+/*
         // Go into the wiring state.
         void BeginWiring(object data)
         {
@@ -287,6 +257,7 @@ namespace Klak.Wiring.Patcher
             // Request repaint continuously.
             Repaint();
         }
+        */
 
         #endregion
 
@@ -299,6 +270,8 @@ namespace Klak.Wiring.Patcher
                     EditorApplication.isPlayingOrWillChangePlaymode;
             }
         }
+
+        /*
 
         // Find and get the active node.
         Node GetActiveNode()
@@ -503,6 +476,7 @@ namespace Klak.Wiring.Patcher
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
+        */
 
         // Draw empty placeholder GUI.
         void DrawPlaceholderGUI(string message)

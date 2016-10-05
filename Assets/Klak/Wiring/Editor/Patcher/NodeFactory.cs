@@ -29,6 +29,7 @@ using System;
 
 namespace Klak.Wiring.Patcher
 {
+    /*
     // Class for creating new nodes
     public class NodeFactory
     {
@@ -146,4 +147,5 @@ namespace Klak.Wiring.Patcher
 
         #endregion
     }
+    */
 }

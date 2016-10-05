@@ -28,6 +28,7 @@ using System.Collections.ObjectModel;
 
 namespace Klak.Wiring.Patcher
 {
+    /*
     // Editor representation of patch
     // It also manages mapping information between
     // node instances (NodeBase) and those editor representations.
@@ -110,4 +111,5 @@ namespace Klak.Wiring.Patcher
 
         #endregion
     }
+    */
 }
