@@ -40,7 +40,7 @@ namespace Klak.Wiring.Patcher
         static public Node Create(Wiring.NodeBase instance)
         {
             var node = CreateInstance<Node>();
-            node.hideFlags = HideFlags.HideAndDontSave;
+            node.hideFlags = HideFlags.DontSave;
 
             // Object references
             node._instance = instance;
@@ -63,6 +63,12 @@ namespace Klak.Wiring.Patcher
         // Validity check
         public bool isValid {
             get { return _instance != null; }
+        }
+
+        // Create a property editor.
+        public Editor CreateEditor()
+        {
+            return UnityEditor.Editor.CreateEditor(_instance);
         }
 
         #endregion
@@ -188,8 +194,52 @@ namespace Klak.Wiring.Patcher
     [CustomEditor(typeof(Node))]
     class NodeEditor : Editor
     {
+        Editor _editor;
+
+        void OnEnable()
+        {
+            if (_editor == null)
+                _editor = ((Node)target).CreateEditor();
+        }
+
+        void OnDisable()
+        {
+            // This is needed to clear the UnityEventDrawer cache.
+            EditorUtility.ClearPropertyDrawerCache();
+        }
+
+        void OnDestroy()
+        {
+            DestroyImmediate(_editor);
+        }
+
+        protected override void OnHeaderGUI()
+        {
+            EditorGUILayout.Space();
+
+            // Retrieve the header title (type name).
+            var instance = (MonoBehaviour)_editor.target;
+            var title = ObjectNames.NicifyVariableName(instance.GetType().Name);
+
+            // Show the header title.
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(14);
+            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+            GUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+        }
+
         public override void OnInspectorGUI()
         {
+            // Show the node name field.
+            var instance = (MonoBehaviour)_editor.target;
+            instance.name = EditorGUILayout.TextField("Name", instance.name);
+
+            EditorGUILayout.Space();
+
+            // Node properties
+            _editor.OnInspectorGUI();
         }
     }
 
@@ -301,12 +351,6 @@ namespace Klak.Wiring.Patcher
                 Undo.RecordObject(_instance.gameObject, "Changed Name");
                 _instance.name = newName;
             }
-        }
-
-        // Create a property editor.
-        public Editor CreateEditor()
-        {
-            return UnityEditor.Editor.CreateEditor(_instance);
         }
 
         // Window GUI function
