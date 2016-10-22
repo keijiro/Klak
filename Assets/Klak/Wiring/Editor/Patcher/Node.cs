@@ -24,14 +24,12 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEditor;
-using UnityEditor.Events;
-using System.Collections.Generic;
 using System.Reflection;
-
 using Graphs = UnityEditor.Graphs;
 
 namespace Klak.Wiring.Patcher
 {
+    // Spacialized node class
     public class Node : Graphs.Node
     {
         #region Public class methods
@@ -213,21 +211,17 @@ namespace Klak.Wiring.Patcher
         #endregion
     }
 
+    // Inspector GUI for the specialized node
     [CustomEditor(typeof(Node))]
     class NodeEditor : Editor
     {
+        // Node component editor
         Editor _editor;
 
         void OnEnable()
         {
             if (_editor == null)
                 _editor = CreateEditor(((Node)target).runtimeInstance);
-        }
-
-        void OnDisable()
-        {
-            // This is needed to clear the UnityEventDrawer cache.
-            EditorUtility.ClearPropertyDrawerCache();
         }
 
         void OnDestroy()
@@ -264,158 +258,4 @@ namespace Klak.Wiring.Patcher
             _editor.OnInspectorGUI();
         }
     }
-
-    /*
-        // Remove itself from the patch.
-        public void RemoveFromPatch(Patch patch)
-        {
-            Undo.DestroyObjectImmediate(_instance.gameObject);
-        }
-
-        // Enumerate all the links from a given outlet.
-        public NodeLink[] EnumerateLinksFrom(Outlet outlet, Patch patch)
-        {
-            if (_cachedLinks == null) CacheLinks(patch);
-
-            var temp = new List<NodeLink>();
-
-            foreach (var link in _cachedLinks)
-                if (link.fromOutlet == outlet) temp.Add(link);
-
-            return temp.ToArray();
-        }
-
-        // If this node has a link to a given inlet, return it.
-        public NodeLink TryGetLinkTo(Node targetNode, Inlet inlet, Patch patch)
-        {
-            if (_cachedLinks == null) CacheLinks(patch);
-
-            foreach (var link in _cachedLinks)
-                if (link.toInlet == inlet) return link;
-
-            return null;
-        }
-
-        // Try to make a link from the outlet to a given node/inlet.
-        public void TryLinkTo(Outlet outlet, Node targetNode, Inlet inlet)
-        {
-            Undo.RecordObject(_instance, "Link To Node");
-
-            // Retrieve the target method (inlet) information.
-            var targetMethod = targetNode._instance.GetType().GetMethod(inlet.methodName);
-
-            // Try to create a link.
-            var result = LinkUtility.TryLinkNodes(
-                _instance, outlet.boundEvent,
-                targetNode._instance, targetMethod
-            );
-
-            // Clear the cache and update information.
-            if (result) {
-                _cachedLinks = null;
-                _serializedObject.Update();
-            }
-        }
-
-        // Remove a link to a given node/inlet.
-        public void RemoveLink(Outlet outlet, Node targetNode, Inlet inlet)
-        {
-            Undo.RecordObject(_instance, "Remove Link");
-
-            // Retrieve the target method (inlet) information.
-            var targetMethod = targetNode._instance.GetType().GetMethod(inlet.methodName);
-
-            // Remove the link.
-            LinkUtility.RemoveLinkNodes(
-                _instance, outlet.boundEvent,
-                targetNode._instance, targetMethod
-            );
-
-            // Clear the cache and update information.
-            _cachedLinks = null;
-            _serializedObject.Update();
-        }
-
-        // Remove all links to a given node.
-        public void RemoveLinksTo(Node targetNode, Patch patch)
-        {
-            if (_cachedLinks == null) CacheLinks(patch);
-
-            foreach (var link in _cachedLinks)
-                if (link.toNode == targetNode)
-                    RemoveLink(link.fromOutlet, link.toNode, link.toInlet);
-        }
-
-        // Draw (sub)window GUI.
-        public void DrawWindowGUI()
-        {
-            // Make a rect at the window position. The size is not in use.
-            var rect = new Rect(windowPosition, Vector2.one);
-
-            // Show the window.
-            var style = isFocused ? GUIStyles.activeNode : GUIStyles.node;
-            var newRect = GUILayout.Window(_windowID, rect, OnWindowGUI, displayName, style);
-
-            // Update the serialized info if the position was changed.
-            if (newRect.position != rect.position) {
-                _serializedObject.Update();
-                _serializedPosition.vector2Value = newRect.position;
-                _serializedObject.ApplyModifiedProperties();
-            }
-        }
-
-        // Draw the name field GUI.
-        public void DrawNameFieldGUI()
-        {
-            var newName = EditorGUILayout.DelayedTextField("Node Name", _instance.name);
-            if (newName != _instance.name)
-            {
-                Undo.RecordObject(_instance.gameObject, "Changed Name");
-                _instance.name = newName;
-            }
-        }
-
-        // Window GUI function
-        void OnWindowGUI(int id)
-        {
-            // It can update the button position info on a repaint event.
-            var rectUpdate = (Event.current.type == EventType.Repaint);
-
-            // Draw the inlet labels and buttons.
-            foreach (var inlet in _inlets)
-                if (inlet.DrawGUI(rectUpdate))
-                    // The inlet button was pressed; nofity via FeedbackQueue.
-                    FeedbackQueue.Enqueue(new FeedbackQueue.InletButtonRecord(this, inlet));
-
-            // Draw the outlet labels and buttons.
-            foreach (var outlet in _outlets)
-                if (outlet.DrawGUI(rectUpdate))
-                    // The outlet button was pressed; nofity via FeedbackQueue.
-                    FeedbackQueue.Enqueue(new FeedbackQueue.OutletButtonRecord(this, outlet));
-
-            // The standard GUI behavior.
-            _controlID = GUIUtility.GetControlID(FocusType.Keyboard);
-            GUI.DragWindow();
-
-            // Is this window clicked?
-            if (Event.current.type == EventType.Used)
-            {
-                // Then assume it's active one.
-                _activeWindowID = id;
-                // Grab the keyboard focus.
-                EditorGUIUtility.keyboardControl = _controlID;
-            }
-
-            var e = Event.current;
-
-            if (e.GetTypeForControl(_controlID) == EventType.ValidateCommand)
-                if (e.commandName == "Delete" || e.commandName == "SoftDelete")
-                    e.Use();
-
-            if (e.GetTypeForControl(_controlID) == EventType.ExecuteCommand)
-                if (e.commandName == "Delete" || e.commandName == "SoftDelete")
-                    FeedbackQueue.Enqueue(new FeedbackQueue.DeleteNodeRecord(this));
-        }
-    }
-    */
 }
