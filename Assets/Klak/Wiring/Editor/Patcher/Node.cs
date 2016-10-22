@@ -34,41 +34,44 @@ namespace Klak.Wiring.Patcher
 {
     public class Node : Graphs.Node
     {
-        #region Public methods
+        #region Public class methods
 
         // Factory method
-        static public Node Create(Wiring.NodeBase instance)
+        static public Node Create(Wiring.NodeBase runtimeInstance)
         {
             var node = CreateInstance<Node>();
             node.hideFlags = HideFlags.DontSave;
-
-            // Object references
-            node._instance = instance;
-            node._serializedObject = new UnityEditor.SerializedObject(instance);
-            node._serializedPosition = node._serializedObject.FindProperty("_wiringNodePosition");
-
-            // Basic information
-            node.name = instance.GetInstanceID().ToString();
-            node.title = instance.name;
-
-            // Window initialization
-            node.InitializePosition();
-
-            // Slot initialization
-            node.InitializeSlots();
-
+            node.Initialize(runtimeInstance);
             return node;
+        }
+
+        #endregion
+
+        #region Public member properties and methods
+
+        // Runtime instance access
+        public Wiring.NodeBase runtimeInstance {
+            get { return _runtimeInstance; }
         }
 
         // Validity check
         public bool isValid {
-            get { return _instance != null; }
+            get { return _runtimeInstance != null; }
         }
 
-        // Create a property editor.
-        public Editor CreateEditor()
+        #endregion
+
+        #region Overridden virtual methods
+
+        // Node display title
+        public override string title {
+            get { return _runtimeInstance.name; }
+        }
+
+        // Removal from a graph
+        public override void RemovingFromGraph()
         {
-            return UnityEditor.Editor.CreateEditor(_instance);
+            Undo.DestroyObjectImmediate(_runtimeInstance.gameObject);
         }
 
         #endregion
@@ -76,11 +79,29 @@ namespace Klak.Wiring.Patcher
         #region Private members
 
         // Runtime instance of this node
-        Wiring.NodeBase _instance;
+        Wiring.NodeBase _runtimeInstance;
 
         // Serialized property accessor
         SerializedObject _serializedObject;
         SerializedProperty _serializedPosition;
+
+        // Initializer (called from the Create method)
+        void Initialize(Wiring.NodeBase runtimeInstance)
+        {
+            // Object references
+            _runtimeInstance = runtimeInstance;
+            _serializedObject = new UnityEditor.SerializedObject(runtimeInstance);
+            _serializedPosition = _serializedObject.FindProperty("_wiringNodePosition");
+
+            // Basic information
+            name = runtimeInstance.GetInstanceID().ToString();
+
+            // Window initialization
+            InitializePosition();
+
+            // Slot initialization
+            PopulateSlots();
+        }
 
         // Restore/Initialize position
         void InitializePosition()
@@ -100,72 +121,73 @@ namespace Klak.Wiring.Patcher
         }
 
         // Convert all inlets/outlets into node slots.
-        void InitializeSlots()
+        void PopulateSlots()
         {
             // Enumeration flags: all public and non-public members
             const BindingFlags flags =
-                BindingFlags.Public |
-                BindingFlags.NonPublic |
-                BindingFlags.Instance;
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
             // Inlets (property)
-            foreach (var prop in _instance.GetType().GetProperties(flags))
+            foreach (var prop in _runtimeInstance.GetType().GetProperties(flags))
             {
+                // Check if it has an inlet attribute.
                 var attrs = prop.GetCustomAttributes(typeof(Wiring.InletAttribute), true);
                 if (attrs.Length == 0) continue;
 
-                // Register the setter method.
-                var slot = AddInputSlot("set_" + prop.Name);
+                // Register the setter method as an input slot.
+                var slot = AddInputSlot("set_" + prop.Name, prop.PropertyType);
 
                 // Apply the standard nicifying rule.
                 slot.title = ObjectNames.NicifyVariableName(prop.Name);
             }
 
             // Inlets (method)
-            foreach (var method in _instance.GetType().GetMethods(flags))
+            foreach (var method in _runtimeInstance.GetType().GetMethods(flags))
             {
+                // Check if it has an inlet attribute.
                 var attrs = method.GetCustomAttributes(typeof(Wiring.InletAttribute), true);
                 if (attrs.Length == 0) continue;
 
-                var slot = AddInputSlot(method.Name);
+                // Register the method as an input slot.
+                var args = method.GetParameters();
+                var dataType = args.Length > 0 ? args[0].ParameterType : null;
+                var slot = AddInputSlot(method.Name, dataType);
 
                 // Apply the standard nicifying rule.
                 slot.title = ObjectNames.NicifyVariableName(method.Name);
             }
 
             // Outlets (UnityEvent members)
-            foreach (var field in _instance.GetType().GetFields(flags))
+            foreach (var field in _runtimeInstance.GetType().GetFields(flags))
             {
+                // Check if it has an outlet attribute.
                 var attrs = field.GetCustomAttributes(typeof(Wiring.OutletAttribute), true);
                 if (attrs.Length == 0) continue;
 
-                var slot = AddOutputSlot(field.Name);
+                // Register it as an output slot.
+                var dataType = LinkUtility.GetEventDataType(field.FieldType);
+                var slot = AddOutputSlot(field.Name, dataType);
 
-                // Apply the standard nicifying rule.
+                // Apply the standard nicifying rule and remove tailing "Event".
                 var title = ObjectNames.NicifyVariableName(field.Name);
-
-                // Remove tailing "Event".
-                if (title.EndsWith(" Event"))
-                    title = title.Substring(0, title.Length - 6);
-
+                if (title.EndsWith(" Event")) title = title.Substring(0, title.Length - 6);
                 slot.title = title;
             }
         }
 
-        public void ScanSlots()
+        // Scan all inlets/outlets and populate edges.
+        public void PopulateEdges()
         {
             // Enumeration flags: all public and non-public members
             const BindingFlags flags =
-                BindingFlags.Public |
-                BindingFlags.NonPublic |
-                BindingFlags.Instance;
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
             foreach (var slot in outputSlots)
             {
-                var field = _instance.GetType().GetField(slot.name, flags);
+                var field = _runtimeInstance.GetType().GetField(slot.name, flags);
                 if (field == null) continue;
 
-                var boundEvent = (UnityEventBase)field.GetValue(_instance);
+                var boundEvent = (UnityEventBase)field.GetValue(_runtimeInstance);
                 var targetCount = boundEvent.GetPersistentEventCount();
 
                 for (var i = 0; i < targetCount; i++)
@@ -199,7 +221,7 @@ namespace Klak.Wiring.Patcher
         void OnEnable()
         {
             if (_editor == null)
-                _editor = ((Node)target).CreateEditor();
+                _editor = CreateEditor(((Node)target).runtimeInstance);
         }
 
         void OnDisable()
@@ -218,7 +240,7 @@ namespace Klak.Wiring.Patcher
             EditorGUILayout.Space();
 
             // Retrieve the header title (type name).
-            var instance = (MonoBehaviour)_editor.target;
+            var instance = ((Node)target).runtimeInstance;
             var title = ObjectNames.NicifyVariableName(instance.GetType().Name);
 
             // Show the header title.
@@ -233,7 +255,7 @@ namespace Klak.Wiring.Patcher
         public override void OnInspectorGUI()
         {
             // Show the node name field.
-            var instance = (MonoBehaviour)_editor.target;
+            var instance = ((Node)target).runtimeInstance;
             instance.name = EditorGUILayout.TextField("Name", instance.name);
 
             EditorGUILayout.Space();

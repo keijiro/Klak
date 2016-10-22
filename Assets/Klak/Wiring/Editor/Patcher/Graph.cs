@@ -43,7 +43,7 @@ namespace Klak.Wiring.Patcher
 
             // Enumerate all the edges.
             foreach (Node node in nodes)
-                node.ScanSlots();
+                node.PopulateEdges();
         }
 
         public bool isValid {
@@ -55,6 +55,14 @@ namespace Klak.Wiring.Patcher
             foreach (Node node in nodes)
                 if (!node.isValid) return false;
             return true;
+        }
+
+        public override bool CanConnect(Graphs.Slot fromSlot, Graphs.Slot toSlot)
+        {
+            // If the outlet is bang, any inlet can be connected.
+            if (fromSlot.dataType == null) return true;
+            // Check if the types match.
+            return fromSlot.dataType == toSlot.dataType;
         }
     }
 

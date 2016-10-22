@@ -34,6 +34,16 @@ namespace Klak.Wiring.Patcher
     {
         #region Public functions
 
+        // Determine data type of a given event.
+        public static Type GetEventDataType(Type eventType)
+        {
+            if (typeof(UnityEvent<float     >).IsAssignableFrom(eventType)) return typeof(float);
+            if (typeof(UnityEvent<Vector3   >).IsAssignableFrom(eventType)) return typeof(Vector3);
+            if (typeof(UnityEvent<Quaternion>).IsAssignableFrom(eventType)) return typeof(Quaternion);
+            if (typeof(UnityEvent<Color     >).IsAssignableFrom(eventType)) return typeof(Color);
+            return null;
+        }
+
         // Try to create a link between two nodes.
         // Returns true if the link is established successfully.
         public static bool TryLinkNodes(
