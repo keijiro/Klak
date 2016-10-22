@@ -39,7 +39,7 @@ namespace Klak.Wiring.Patcher
         {
             var window = EditorWindow.GetWindow<PatcherWindow>("Patcher");
 
-            window._graph = Graph.CreateFromPatch(patchInstance);
+            window._graph = Graph.Create(patchInstance);
             window._graphGUI = window._graph.GetEditor();
             window._patchManager.Select(window._graph);
 

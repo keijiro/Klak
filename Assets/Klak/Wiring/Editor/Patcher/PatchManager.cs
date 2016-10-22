@@ -71,7 +71,7 @@ namespace Klak.Wiring.Patcher
         // Create an editor representation of the patch at the index.
         public Graph RetrieveAt(int index)
         {
-            return Graph.CreateFromPatch(_instances[index]);
+            return Graph.Create(_instances[index]);
         }
 
         // Create an editor representation of the previously chosesn patch.
@@ -85,7 +85,7 @@ namespace Klak.Wiring.Patcher
             if (instance == null && _instances.Length > 0)
                 instance = _instances[0];
 
-            return instance == null ? null : Graph.CreateFromPatch(instance);
+            return instance == null ? null : Graph.Create(instance);
         }
 
         // Select a given patch for later use.
