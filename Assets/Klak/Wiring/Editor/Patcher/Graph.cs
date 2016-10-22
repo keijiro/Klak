@@ -16,6 +16,7 @@ namespace Klak.Wiring.Patcher
         }
 
         Wiring.Patch _patch;
+        bool _editing;
 
         static public Graph CreateFromPatch(Wiring.Patch patch)
         {
@@ -35,6 +36,8 @@ namespace Klak.Wiring.Patcher
 
         public void RescanPatch()
         {
+            _editing = false;
+
             Clear(true);
 
             // Enumerate all the node instances.
@@ -44,6 +47,8 @@ namespace Klak.Wiring.Patcher
             // Enumerate all the edges.
             foreach (Node node in nodes)
                 node.PopulateEdges();
+
+            _editing = true;
         }
 
         public bool isValid {
@@ -57,13 +62,58 @@ namespace Klak.Wiring.Patcher
             return true;
         }
 
+        #region Overridden virtual methods
+
+        // Check if slots can be connected.
         public override bool CanConnect(Graphs.Slot fromSlot, Graphs.Slot toSlot)
         {
             // If the outlet is bang, any inlet can be connected.
             if (fromSlot.dataType == null) return true;
-            // Check if the types match.
+            // Apply simple type matching.
             return fromSlot.dataType == toSlot.dataType;
         }
+
+        // Establish a connection between slots.
+        public override Graphs.Edge Connect(Graphs.Slot fromSlot, Graphs.Slot toSlot)
+        {
+            var edge = base.Connect(fromSlot, toSlot);
+
+            if (_editing)
+            {
+                Undo.RecordObject(((Node)fromSlot.node).runtimeInstance, "Link To Node");
+
+                LinkUtility.TryLinkNodes(
+                    ((Node)fromSlot.node).runtimeInstance,
+                    LinkUtility.GetEventOfOutputSlot(fromSlot),
+                    ((Node)toSlot.node).runtimeInstance,
+                    LinkUtility.GetMethodOfInputSlot(toSlot)
+                );
+
+                EditorUtility.RepaintAllInspectors();
+            }
+
+            return edge;
+        }
+
+        // Remove a connection between slots.
+        public override void RemoveEdge(Graphs.Edge edge)
+        {
+            var fromSlot = edge.fromSlot;
+            var toSlot = edge.toSlot;
+
+            LinkUtility.RemoveLinkNodes(
+                ((Node)fromSlot.node).runtimeInstance,
+                LinkUtility.GetEventOfOutputSlot(fromSlot),
+                ((Node)toSlot.node).runtimeInstance,
+                LinkUtility.GetMethodOfInputSlot(toSlot)
+            );
+
+            base.RemoveEdge(edge);
+
+            EditorUtility.RepaintAllInspectors();
+        }
+
+        #endregion
     }
 
     public class GraphGUI : Graphs.GraphGUI

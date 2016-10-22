@@ -28,6 +28,8 @@ using UnityEditor.Events;
 using System.Reflection;
 using System;
 
+using Graphs = UnityEditor.Graphs;
+
 namespace Klak.Wiring.Patcher
 {
     public static class LinkUtility
@@ -42,6 +44,22 @@ namespace Klak.Wiring.Patcher
             if (typeof(UnityEvent<Quaternion>).IsAssignableFrom(eventType)) return typeof(Quaternion);
             if (typeof(UnityEvent<Color     >).IsAssignableFrom(eventType)) return typeof(Color);
             return null;
+        }
+
+        // Get the event instance that is represented by a given output slot.
+        public static UnityEventBase GetEventOfOutputSlot(Graphs.Slot slot)
+        {
+            var node = ((Node)slot.node).runtimeInstance;
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var field = node.GetType().GetField(slot.name, flags);
+            return (UnityEventBase)field.GetValue(node);
+        }
+
+        // Get the method that is represented by a given input slot.
+        public static MethodInfo GetMethodOfInputSlot(Graphs.Slot slot)
+        {
+            var node = ((Node)slot.node).runtimeInstance;
+            return node.GetType().GetMethod(slot.name);
         }
 
         // Try to create a link between two nodes.

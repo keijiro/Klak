@@ -34,10 +34,18 @@ namespace Klak.Wiring.Patcher
         // "SerializedObject of SerializedProperty has been Disposed" error.
         public static void ClearPropertyDrawerCache()
         {
-            // Call the internal function ScriptAttributeUtility.ClearGlobalCache
-            // in a very very bad way!! FIXME FIXME FIXME!!!
+            // Call internal function ScriptAttributeUtility.ClearGlobalCache.
             var t = Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor");
             var m = t.GetMethod("ClearGlobalCache", BindingFlags.NonPublic | BindingFlags.Static);
+            m.Invoke(null, null);
+        }
+
+        // Sends repaint request to all inspectors.
+        public static void RepaintAllInspectors()
+        {
+            // Call internal function InspectorWindow.RepaintAllInspectors.
+            var t = Type.GetType("UnityEditor.InspectorWindow,UnityEditor");
+            var m = t.GetMethod("RepaintAllInspectors", BindingFlags.NonPublic | BindingFlags.Static);
             m.Invoke(null, null);
         }
     }
