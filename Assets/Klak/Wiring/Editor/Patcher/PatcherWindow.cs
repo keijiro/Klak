@@ -23,69 +23,60 @@
 //
 using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
 
 namespace Klak.Wiring.Patcher
 {
     // Patcher window class
     public class PatcherWindow : EditorWindow
     {
-        #region Exposed functions
+        #region Class methods
 
         // Open the patcher window with a given patch.
-        public static void OpenPatch(Wiring.Patch patchInstance)
+        public static void OpenPatch(Wiring.Patch patch)
         {
             var window = EditorWindow.GetWindow<PatcherWindow>("Patcher");
-            window._graph = Graph.Create(patchInstance);
-            window._graphGUI = window._graph.GetEditor();
+            window.Initialize(patch);
             window.Show();
         }
 
-        // Open from the main menu.
+        // Open from the main menu (only open the empty window).
         [MenuItem("Window/Klak/Patcher")]
-        static void Init()
+        static void OpenEmpty()
         {
-            EditorWindow.GetWindow<PatcherWindow>("Patcher").Show();
+            OpenPatch(null);
         }
-
-        #endregion
-
-        #region Private fields
-
-        // Currently editing patch
-        Graph _graph;
-        GraphGUI _graphGUI;
-
-        // Hierarchy change flag
-        bool _hierarchyChanged;
 
         #endregion
 
         #region EditorWindow functions
 
+        void OnEnable()
+        {
+            Undo.undoRedoPerformed += OnUndo;
+            EditorApplication.hierarchyWindowChanged += OnHierarchyWindowChanged;
+        }
+
+        void OnDisable()
+        {
+            Undo.undoRedoPerformed -= OnUndo;
+            EditorApplication.hierarchyWindowChanged -= OnHierarchyWindowChanged;
+        }
+
         void OnUndo()
         {
-            // We have to rescan patches and nodes,
-            // because there may be an unknown ones.
-            //if (_graph != null && _graph.isValid) _graph.RescanPatch();
-
-            // Manually update the GUI.
-            //Repaint();
+            // Invalidate the graph and force repaint.
+            _graph.Invalidate();
+            Repaint();
         }
 
         void OnFocus()
         {
-            // Rescan if there are changes in the hierarchy while unfocused.
-            //if (_hierarchyChanged) {
-            //    if (_graph != null && _graph.isValid) _graph.RescanPatch();
-            //}
+            // Invalidate the graph if the hierarchy was touched while unfocused.
+            if (_hierarchyChanged) _graph.Invalidate();
         }
 
         void OnLostFocus()
         {
-            // To record hierarchy change while unfocused.
             _hierarchyChanged = false;
         }
 
@@ -97,34 +88,24 @@ namespace Klak.Wiring.Patcher
         void OnGUI()
         {
             // Do nothing while play mode.
-            if (isPlayMode) {
-                DrawPlaceholderGUI(
-                    "Patcher is not available in play mode",
-                    "You must exit play mode to resume editing."
-                );
+            if (isPlayMode)
+            {
+                DrawPlaceholderGUI("Patcher is not available in play mode",
+                    "You must exit play mode to resume editing.");
                 return;
             }
 
-            /*
-            // Patch validity check.
-            if (_graph != null)
-                if (!_graph.isValid)
-                    _graph = null; // Seems like not good. Abandon it.
-                else if (!_graph.CheckNodesValidity())
-                    _graph.RescanPatch(); // Some nodes are not good. Rescan them.
-            */
+            // Synchronize the graph with the patch at this point.
+            _graph.SyncWithPatch();
 
-            // Draw a placeholder if no patch is available.
-            // Disable GUI during the play mode, or when no patch is available.
-            if (_graphGUI == null) {
-                DrawPlaceholderGUI(
-                    "No patch is selected for editing",
-                    "You must select a patch in Hierarchy, then press 'Open Patcher' from Inspector."
-                );
+            // Show the placeholder if the patch is not available.
+            if (_graph.patch == null)
+            {
+                DrawPlaceholderGUI("No patch is selected for editing",
+                    "You must select a patch in Hierarchy, then press 'Open Patcher' from Inspector.");
                 return;
             }
 
-            // View area
             _graphGUI.BeginGraphGUI(this, new Rect(0, 0, position.width, position.height));
             _graphGUI.OnGraphGUI();
             _graphGUI.EndGraphGUI();
@@ -132,17 +113,28 @@ namespace Klak.Wiring.Patcher
 
         #endregion
 
-        #region Private methods
+        #region Private members
 
-        // Check if in the play mode.
+        Graph _graph;
+        GraphGUI _graphGUI;
+        bool _hierarchyChanged;
+
+        // Check if in play mode.
         bool isPlayMode {
             get {
-                return EditorApplication.isPlaying ||
-                    EditorApplication.isPlayingOrWillChangePlaymode;
+                return EditorApplication.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode;
             }
         }
 
-        // Draw empty placeholder GUI.
+        // Initializer (called from OpenPatch)
+        void Initialize(Wiring.Patch patch)
+        {
+            hideFlags = HideFlags.HideAndDontSave;
+            _graph = Graph.Create(patch);
+            _graphGUI = _graph.GetEditor();
+        }
+
+        // Draw the placeholder GUI.
         void DrawPlaceholderGUI(string title, string comment)
         {
             GUILayout.BeginVertical();

@@ -34,11 +34,10 @@ namespace Klak.Wiring.Patcher
         #region Public class methods
 
         // Factory method
-        static public Graph Create(Wiring.Patch runtimeInstance)
+        static public Graph Create(Wiring.Patch patch)
         {
             var graph = CreateInstance<Graph>();
-            graph.hideFlags = HideFlags.HideAndDontSave;
-            graph.Initialize(runtimeInstance);
+            graph.Initialize(patch);
             return graph;
         }
 
@@ -46,28 +45,17 @@ namespace Klak.Wiring.Patcher
 
         #region Public member properties and methods
 
-        // Runtime instance access
-        public Wiring.Patch runtimeInstance {
-            get { return _runtimeInstance; }
+        // Current editing state
+        public bool isEditing {
+            get { return _isEditing; }
         }
 
-        // Check if this graph is still editable.
-        public bool isValid {
-            get { return _runtimeInstance != null; }
-        }
-
-        // Check if nodes in this graph are still alive.
-        public bool CheckNodesValidity()
-        {
-            foreach (Node node in nodes)
-                if (!node.isValid) return false;
-            return true;
-        }
-
-        // Check if this graph is a representation of a given patch.
-        public bool IsRepresentationOf(Wiring.Patch patch)
-        {
-            return _runtimeInstance.GetInstanceID() == patch.GetInstanceID();
+        // Get source patch
+        public Wiring.Patch patch {
+            get {
+                if (_patch == null) ForceSyncNow();
+                return _patch;
+            }
         }
 
         // Create a specialized editor GUI for this graph.
@@ -79,36 +67,67 @@ namespace Klak.Wiring.Patcher
             return gui;
         }
 
-        // Rescan the source patch and reset the internal state.
-        public void RescanPatch()
+        // Invalidate the internal state.
+        public void Invalidate()
         {
-            _ready = false;
+            _patch = null;
+        }
 
-            Clear(true);
-
-            // Enumerate all the node instances.
-            foreach (var i in _runtimeInstance.GetComponentsInChildren<Wiring.NodeBase>())
-                AddNode(Node.Create(i));
-
-            // Enumerate all the edges.
-            foreach (Node node in nodes)
-                node.PopulateEdges();
-
-            _ready = true;
+        // Synchronize with the source patch.
+        public void SyncWithPatch()
+        {
+            if (_patch == null) ForceSyncNow();
         }
 
         #endregion
 
         #region Private members
 
-        Wiring.Patch _runtimeInstance;
-        bool _ready;
+        [NonSerialized] Wiring.Patch _patch;
+        int _patchInstanceID;
+        bool _isEditing;
 
         // Initializer (called from the Create method)
-        void Initialize(Wiring.Patch runtimeInstance)
+        void Initialize(Wiring.Patch patch)
         {
-            _runtimeInstance = runtimeInstance;
-            RescanPatch();
+            hideFlags = HideFlags.HideAndDontSave;
+            _patchInstanceID = patch.GetInstanceID();
+        }
+
+        // Synchronize with the source patch immediately.
+        void ForceSyncNow()
+        {
+            // Operations on this graph are not reflected to the patch from now.
+            _isEditing = false;
+
+            // Reset the state.
+            Clear(true);
+            _patch = null;
+
+            // Retrieve the patch object based on the instance ID.
+            foreach (var obj in GameObject.FindObjectsOfType<Wiring.Patch>())
+            {
+                if (obj.GetInstanceID() == _patchInstanceID)
+                {
+                    _patch = obj;
+                    break;
+                }
+            }
+
+            // Scan the patch if available.
+            if (_patch != null)
+            {
+                // Enumerate all the node instances.
+                foreach (var i in _patch.GetComponentsInChildren<Wiring.NodeBase>())
+                    AddNode(Node.Create(i));
+
+                // Enumerate all the edges.
+                foreach (Node node in nodes)
+                    node.PopulateEdges();
+            }
+
+            // Operations will be reflected to the patch again.
+            _isEditing = true;
         }
 
         #endregion
@@ -129,7 +148,7 @@ namespace Klak.Wiring.Patcher
         {
             var edge = base.Connect(fromSlot, toSlot);
 
-            if (_ready)
+            if (_isEditing)
             {
                 var fromNodeRuntime = ((Node)fromSlot.node).runtimeInstance;
                 var toNodeRuntime = ((Node)toSlot.node).runtimeInstance;
@@ -154,20 +173,23 @@ namespace Klak.Wiring.Patcher
         // Remove a connection between slots.
         public override void RemoveEdge(Graphs.Edge edge)
         {
-            var fromSlot = edge.fromSlot;
-            var toSlot = edge.toSlot;
+            if (_isEditing)
+            {
+                var fromSlot = edge.fromSlot;
+                var toSlot = edge.toSlot;
 
-            var fromNodeRuntime = ((Node)fromSlot.node).runtimeInstance;
-            var toNodeRuntime = ((Node)toSlot.node).runtimeInstance;
+                var fromNodeRuntime = ((Node)fromSlot.node).runtimeInstance;
+                var toNodeRuntime = ((Node)toSlot.node).runtimeInstance;
 
-            // Make this operation undoable.
-            Undo.RecordObject(fromNodeRuntime, "Remove Link");
+                // Make this operation undoable.
+                Undo.RecordObject(fromNodeRuntime, "Remove Link");
 
-            // Remove the serialized event.
-            LinkUtility.RemoveLinkNodes(
-                fromNodeRuntime, LinkUtility.GetEventOfOutputSlot(fromSlot),
-                toNodeRuntime, LinkUtility.GetMethodOfInputSlot(toSlot)
-            );
+                // Remove the serialized event.
+                LinkUtility.RemoveLinkNodes(
+                    fromNodeRuntime, LinkUtility.GetEventOfOutputSlot(fromSlot),
+                    toNodeRuntime, LinkUtility.GetMethodOfInputSlot(toSlot)
+                );
+            }
 
             base.RemoveEdge(edge);
         }
@@ -289,7 +311,7 @@ namespace Klak.Wiring.Patcher
             var name = ObjectNames.NicifyVariableName(type.Name);
             var gameObject = new GameObject(name);
             var nodeRuntime = (Wiring.NodeBase)gameObject.AddComponent(type);
-            gameObject.transform.parent = ((Graph)graph).runtimeInstance.transform;
+            gameObject.transform.parent = ((Graph)graph).patch.transform;
 
             // Add it to the graph.
             var node = Node.Create(nodeRuntime);

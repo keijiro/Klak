@@ -24,6 +24,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEditor;
+using System;
 using System.Reflection;
 using Graphs = UnityEditor.Graphs;
 
@@ -38,7 +39,6 @@ namespace Klak.Wiring.Patcher
         static public Node Create(Wiring.NodeBase runtimeInstance)
         {
             var node = CreateInstance<Node>();
-            node.hideFlags = HideFlags.DontSave;
             node.Initialize(runtimeInstance);
             return node;
         }
@@ -69,7 +69,8 @@ namespace Klak.Wiring.Patcher
         // Removal from a graph
         public override void RemovingFromGraph()
         {
-            Undo.DestroyObjectImmediate(_runtimeInstance.gameObject);
+            if (graph != null && ((Graph)graph).isEditing)
+                Undo.DestroyObjectImmediate(_runtimeInstance.gameObject);
         }
 
         // Dirty callback
@@ -91,7 +92,7 @@ namespace Klak.Wiring.Patcher
         #region Private members
 
         // Runtime instance of this node
-        Wiring.NodeBase _runtimeInstance;
+        [NonSerialized] Wiring.NodeBase _runtimeInstance;
 
         // Serialized property accessor
         SerializedObject _serializedObject;
@@ -100,6 +101,8 @@ namespace Klak.Wiring.Patcher
         // Initializer (called from the Create method)
         void Initialize(Wiring.NodeBase runtimeInstance)
         {
+            hideFlags = HideFlags.DontSave;
+
             // Object references
             _runtimeInstance = runtimeInstance;
             _serializedObject = new UnityEditor.SerializedObject(runtimeInstance);
@@ -226,6 +229,8 @@ namespace Klak.Wiring.Patcher
 
         protected override void OnHeaderGUI()
         {
+            if (_editor == null) return;
+
             EditorGUILayout.Space();
 
             // Retrieve the header title (type name).
@@ -243,6 +248,8 @@ namespace Klak.Wiring.Patcher
 
         public override void OnInspectorGUI()
         {
+            if (_editor == null) return;
+
             // Show the node name field.
             var instance = ((Node)target).runtimeInstance;
             instance.name = EditorGUILayout.TextField("Name", instance.name);
