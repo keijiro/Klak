@@ -273,11 +273,14 @@ namespace Klak.Wiring.Patcher
             // Create a game object.
             var name = ObjectNames.NicifyVariableName(type.Name);
             var gameObject = new GameObject(name);
-            var node = (Wiring.NodeBase)gameObject.AddComponent(type);
-
-            // Add it to the patch.
+            var nodeRuntime = (Wiring.NodeBase)gameObject.AddComponent(type);
             gameObject.transform.parent = ((Graph)graph).runtimeInstance.transform;
-            graph.AddNode(Node.Create(node));
+
+            // Add it to the graph.
+            var node = Node.Create(nodeRuntime);
+            node.position = new Rect((Vector2)m_contextMenuMouseDownPosition, Vector2.zero);
+            node.Dirty();
+            graph.AddNode(node);
 
             // Make it undo-able.
             Undo.RegisterCreatedObjectUndo(gameObject, "New Node");

@@ -72,6 +72,20 @@ namespace Klak.Wiring.Patcher
             Undo.DestroyObjectImmediate(_runtimeInstance.gameObject);
         }
 
+        // Dirty callback
+        public override void Dirty()
+        {
+            base.Dirty();
+
+            // Update serialized position info if it's changed.
+            var spos = _serializedPosition.vector2Value;
+            if (spos != position.position)
+            {
+                _serializedPosition.vector2Value = position.position;
+                _serializedObject.ApplyModifiedProperties();
+            }
+        }
+
         #endregion
 
         #region Private members
@@ -93,29 +107,10 @@ namespace Klak.Wiring.Patcher
 
             // Basic information
             name = runtimeInstance.GetInstanceID().ToString();
-
-            // Window initialization
-            InitializePosition();
+            position = new Rect(_serializedPosition.vector2Value, Vector2.zero);
 
             // Slot initialization
             PopulateSlots();
-        }
-
-        // Restore/Initialize position
-        void InitializePosition()
-        {
-            var position = _serializedPosition.vector2Value;
-            if (position == Wiring.NodeBase.uninitializedNodePosition)
-            {
-                // Serialize the node position.
-                _serializedPosition.vector2Value = this.position.position;
-                _serializedObject.ApplyModifiedProperties();
-            }
-            else
-            {
-                // Use the serialized window position.
-                this.position.position = position;
-            }
         }
 
         // Convert all inlets/outlets into node slots.
