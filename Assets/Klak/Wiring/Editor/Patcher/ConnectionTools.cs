@@ -27,12 +27,11 @@ using UnityEditor;
 using UnityEditor.Events;
 using System.Reflection;
 using System;
-
 using Graphs = UnityEditor.Graphs;
 
 namespace Klak.Wiring.Patcher
 {
-    public static class LinkUtility
+    public static class ConnectionTools
     {
         #region Public functions
 
@@ -46,29 +45,13 @@ namespace Klak.Wiring.Patcher
             return null;
         }
 
-        // Get the event instance that is represented by a given output slot.
-        public static UnityEventBase GetEventOfOutputSlot(Graphs.Slot slot)
+        // Create a connection between two slots.
+        public static bool ConnectSlots(Graphs.Slot fromSlot, Graphs.Slot toSlot)
         {
-            var node = ((Node)slot.node).runtimeInstance;
-            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var field = node.GetType().GetField(slot.name, flags);
-            return (UnityEventBase)field.GetValue(node);
-        }
+            var nodeTo = ((Node)toSlot.node).runtimeInstance;
+            var triggerEvent = GetEventOfOutputSlot(fromSlot);
+            var targetMethod = GetMethodOfInputSlot(toSlot);
 
-        // Get the method that is represented by a given input slot.
-        public static MethodInfo GetMethodOfInputSlot(Graphs.Slot slot)
-        {
-            var node = ((Node)slot.node).runtimeInstance;
-            return node.GetType().GetMethod(slot.name);
-        }
-
-        // Try to create a link between two nodes.
-        // Returns true if the link is established successfully.
-        public static bool TryLinkNodes(
-            Wiring.NodeBase nodeFrom, UnityEventBase triggerEvent,
-            Wiring.NodeBase nodeTo, MethodInfo targetMethod
-        )
-        {
             // Determine the type of the target action.
             var actionType = GetUnityActionToInvokeMethod(targetMethod);
 
@@ -158,12 +141,13 @@ namespace Klak.Wiring.Patcher
             return false; // trigger-target mismatch
         }
 
-        // Remove a link between two nodes.
-        public static void RemoveLinkNodes(
-            Wiring.NodeBase nodeFrom, UnityEventBase triggerEvent,
-            Wiring.NodeBase nodeTo, MethodInfo targetMethod
-        )
+        // Disconnect given two slots.
+        public static void DisconnectSlots(Graphs.Slot fromSlot, Graphs.Slot toSlot)
         {
+            var nodeTo = ((Node)toSlot.node).runtimeInstance;
+            var triggerEvent = GetEventOfOutputSlot(fromSlot);
+            var targetMethod = GetMethodOfInputSlot(toSlot);
+
             var methodName = targetMethod.Name;
 
             var eventCount = triggerEvent.GetPersistentEventCount();
@@ -181,6 +165,22 @@ namespace Klak.Wiring.Patcher
         #endregion
 
         #region Private functions
+
+        // Returns an event instance that is bound to a given output slot.
+        static UnityEventBase GetEventOfOutputSlot(Graphs.Slot slot)
+        {
+            var node = ((Node)slot.node).runtimeInstance;
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var field = node.GetType().GetField(slot.name, flags);
+            return (UnityEventBase)field.GetValue(node);
+        }
+
+        // Returns a method that is bound to a given input slot.
+        static MethodInfo GetMethodOfInputSlot(Graphs.Slot slot)
+        {
+            var node = ((Node)slot.node).runtimeInstance;
+            return node.GetType().GetMethod(slot.name);
+        }
 
         // Returns a UnityAction type that can be used to call the given method.
         static Type GetUnityActionToInvokeMethod(MethodInfo method)

@@ -161,7 +161,7 @@ namespace Klak.Wiring.Patcher
                 if (attrs.Length == 0) continue;
 
                 // Register it as an output slot.
-                var dataType = LinkUtility.GetEventDataType(field.FieldType);
+                var dataType = ConnectionTools.GetEventDataType(field.FieldType);
                 var slot = AddOutputSlot(field.Name, dataType);
 
                 // Apply the standard nicifying rule and remove tailing "Event".

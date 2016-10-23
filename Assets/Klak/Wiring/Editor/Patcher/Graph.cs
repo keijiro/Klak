@@ -150,17 +150,12 @@ namespace Klak.Wiring.Patcher
 
             if (_isEditing)
             {
-                var fromNodeRuntime = ((Node)fromSlot.node).runtimeInstance;
-                var toNodeRuntime = ((Node)toSlot.node).runtimeInstance;
-
                 // Make this operation undoable.
-                Undo.RecordObject(fromNodeRuntime, "Link To Node");
+                var fromNodeRuntime = ((Node)fromSlot.node).runtimeInstance;
+                Undo.RecordObject(fromNodeRuntime, "Create Connection");
 
                 // Add a serialized event.
-                LinkUtility.TryLinkNodes(
-                    fromNodeRuntime, LinkUtility.GetEventOfOutputSlot(fromSlot),
-                    toNodeRuntime, LinkUtility.GetMethodOfInputSlot(toSlot)
-                );
+                ConnectionTools.ConnectSlots(fromSlot, toSlot);
 
                 // Send a repaint request to the inspector window because
                 // the inspector is shown at this point in most cases.
@@ -178,17 +173,12 @@ namespace Klak.Wiring.Patcher
                 var fromSlot = edge.fromSlot;
                 var toSlot = edge.toSlot;
 
-                var fromNodeRuntime = ((Node)fromSlot.node).runtimeInstance;
-                var toNodeRuntime = ((Node)toSlot.node).runtimeInstance;
-
                 // Make this operation undoable.
-                Undo.RecordObject(fromNodeRuntime, "Remove Link");
+                var fromNodeRuntime = ((Node)fromSlot.node).runtimeInstance;
+                Undo.RecordObject(fromNodeRuntime, "Disconnect");
 
                 // Remove the serialized event.
-                LinkUtility.RemoveLinkNodes(
-                    fromNodeRuntime, LinkUtility.GetEventOfOutputSlot(fromSlot),
-                    toNodeRuntime, LinkUtility.GetMethodOfInputSlot(toSlot)
-                );
+                ConnectionTools.DisconnectSlots(fromSlot, toSlot);
             }
 
             base.RemoveEdge(edge);
