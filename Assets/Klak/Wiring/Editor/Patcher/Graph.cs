@@ -23,7 +23,7 @@
 //
 using UnityEngine;
 using UnityEditor;
-
+using System;
 using Graphs = UnityEditor.Graphs;
 
 namespace Klak.Wiring.Patcher
@@ -45,6 +45,11 @@ namespace Klak.Wiring.Patcher
         #endregion
 
         #region Public member properties and methods
+
+        // Runtime instance access
+        public Wiring.Patch runtimeInstance {
+            get { return _runtimeInstance; }
+        }
 
         // Check if this graph is still editable.
         public bool isValid {
@@ -173,24 +178,111 @@ namespace Klak.Wiring.Patcher
     // Specialized editor GUI class
     public class GraphGUI : Graphs.GraphGUI
     {
-        // Slightly customized node GUI
-        public override void NodeGUI(Graphs.Node node)
+        #region Customized GUI
+
+        public override void OnGraphGUI()
         {
-            GUILayout.BeginVertical(GUILayout.Width(150));
+            // Show node subwindows.
+            m_Host.BeginWindows();
 
-            SelectNode(node);
+            foreach (var node in graph.nodes)
+            {
+                // Recapture the variable for the delegate.
+                var node2 = node;
 
-            foreach (var slot in node.inputSlots)
-                LayoutSlot(slot, slot.title, false, true, true, Graphs.Styles.triggerPinIn);
+                // Subwindow style (active/nonactive)
+                var isActive = selection.Contains(node);
+                var style = Graphs.Styles.GetNodeStyle(node.style, node.color, isActive);
 
-            node.NodeUI(this);
+                // Show the subwindow of this node.
+                node.position = GUILayout.Window(
+                    node.GetInstanceID(), node.position,
+                    delegate { NodeGUI(node2); },
+                    node.title, style, GUILayout.Width(150)
+                );
+            }
 
-            foreach (var slot in node.outputSlots)
-                LayoutSlot(slot, slot.title, true, false, true, Graphs.Styles.triggerPinOut);
+            m_Host.EndWindows();
 
-            DragNodes();
+            // Graph edges
+            edgeGUI.DoEdges();
+            edgeGUI.DoDraggedEdge();
 
-            GUILayout.EndVertical();
+            // Mouse drag
+            DragSelection(new Rect(-5000, -5000, 10000, 10000));
+
+            // Context menu
+            ShowCustomContextMenu();
+            HandleMenuEvents();
         }
+
+        #endregion
+
+        #region Customized context menu
+
+		void ShowCustomContextMenu()
+		{
+            // Only cares about single right click.
+			if (Event.current.type != EventType.MouseDown) return;
+            if (Event.current.button != 1) return;
+            if (Event.current.clickCount != 1) return;
+
+            // Consume this mouse event.
+			Event.current.Use();
+
+            // Record the current mouse position
+			m_contextMenuMouseDownPosition = Event.current.mousePosition;
+
+            // Build a context menu.
+            var menu = new GenericMenu();
+
+			if (selection.Count != 0)
+			{
+                // Node operations
+                menu.AddItem(new GUIContent("Cut"), false, ContextMenuCallback, "Cut");
+                menu.AddItem(new GUIContent("Copy"), false, ContextMenuCallback, "Copy");
+                menu.AddItem(new GUIContent("Duplicate"), false, ContextMenuCallback, "Duplicate");
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent("Delete"), false, ContextMenuCallback, "Delete");
+			}
+			else if (edgeGUI.edgeSelection.Count != 0)
+            {
+                // Edge operations
+                menu.AddItem(new GUIContent("Delete"), false, ContextMenuCallback, "Delete");
+            }
+            else
+            {
+                // Clicked on empty space.
+                NodeFactory.AddNodeItemsToMenu(menu, CreateMenuItemCallback);
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent("Paste"), false, ContextMenuCallback, "Paste");
+            }
+
+            menu.ShowAsContext();
+		}
+
+        void ContextMenuCallback(object data)
+        {
+            m_Host.SendEvent(EditorGUIUtility.CommandEvent((string)data));
+        }
+
+        void CreateMenuItemCallback(object data)
+        {
+            var type = data as Type;
+
+            // Create a game object.
+            var name = ObjectNames.NicifyVariableName(type.Name);
+            var gameObject = new GameObject(name);
+            var node = (Wiring.NodeBase)gameObject.AddComponent(type);
+
+            // Add it to the patch.
+            gameObject.transform.parent = ((Graph)graph).runtimeInstance.transform;
+            graph.AddNode(Node.Create(node));
+
+            // Make it undo-able.
+            Undo.RegisterCreatedObjectUndo(gameObject, "New Node");
+        }
+
+        #endregion
     }
 }
