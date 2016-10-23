@@ -180,6 +180,21 @@ namespace Klak.Wiring.Patcher
     {
         #region Customized GUI
 
+        public override void NodeGUI(Graphs.Node node)
+        {
+            SelectNode(node);
+
+            foreach (var slot in node.inputSlots)
+                LayoutSlot(slot, slot.title, false, true, true, Graphs.Styles.triggerPinIn);
+
+            node.NodeUI(this);
+
+            foreach (var slot in node.outputSlots)
+                LayoutSlot(slot, slot.title, true, false, true, Graphs.Styles.triggerPinOut);
+
+            DragNodes();
+        }
+
         public override void OnGraphGUI()
         {
             // Show node subwindows.
