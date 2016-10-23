@@ -28,7 +28,7 @@ using System;
 
 namespace Klak.Wiring.Patcher
 {
-    public static class EditorUtility
+    public static class GUIUtility
     {
         // Clears the property drawer cache to avoid the
         // "SerializedObject of SerializedProperty has been Disposed" error.

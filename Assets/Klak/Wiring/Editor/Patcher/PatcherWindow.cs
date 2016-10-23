@@ -52,6 +52,10 @@ namespace Klak.Wiring.Patcher
 
         void OnEnable()
         {
+            // Initialize if it hasn't been initialized.
+            // (this could be happened when a window layout is loaded)
+            if (_graph == null) Initialize(null);
+
             Undo.undoRedoPerformed += OnUndo;
             EditorApplication.hierarchyWindowChanged += OnHierarchyWindowChanged;
         }

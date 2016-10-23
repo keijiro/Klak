@@ -91,7 +91,7 @@ namespace Klak.Wiring.Patcher
         void Initialize(Wiring.Patch patch)
         {
             hideFlags = HideFlags.HideAndDontSave;
-            _patchInstanceID = patch.GetInstanceID();
+            _patchInstanceID = patch != null ? patch.GetInstanceID() : 0;
         }
 
         // Synchronize with the source patch immediately.
@@ -164,7 +164,7 @@ namespace Klak.Wiring.Patcher
 
                 // Send a repaint request to the inspector window because
                 // the inspector is shown at this point in most cases.
-                EditorUtility.RepaintAllInspectors();
+                GUIUtility.RepaintAllInspectors();
             }
 
             return edge;
@@ -192,135 +192,6 @@ namespace Klak.Wiring.Patcher
             }
 
             base.RemoveEdge(edge);
-        }
-
-        #endregion
-    }
-
-    // Specialized editor GUI class
-    public class GraphGUI : Graphs.GraphGUI
-    {
-        #region Customized GUI
-
-        public override void NodeGUI(Graphs.Node node)
-        {
-            SelectNode(node);
-
-            foreach (var slot in node.inputSlots)
-                LayoutSlot(slot, slot.title, false, true, true, Graphs.Styles.triggerPinIn);
-
-            node.NodeUI(this);
-
-            foreach (var slot in node.outputSlots)
-                LayoutSlot(slot, slot.title, true, false, true, Graphs.Styles.triggerPinOut);
-
-            DragNodes();
-        }
-
-        public override void OnGraphGUI()
-        {
-            // Show node subwindows.
-            m_Host.BeginWindows();
-
-            foreach (var node in graph.nodes)
-            {
-                // Recapture the variable for the delegate.
-                var node2 = node;
-
-                // Subwindow style (active/nonactive)
-                var isActive = selection.Contains(node);
-                var style = Graphs.Styles.GetNodeStyle(node.style, node.color, isActive);
-
-                // Show the subwindow of this node.
-                node.position = GUILayout.Window(
-                    node.GetInstanceID(), node.position,
-                    delegate { NodeGUI(node2); },
-                    node.title, style, GUILayout.Width(150)
-                );
-            }
-
-            m_Host.EndWindows();
-
-            // Graph edges
-            edgeGUI.DoEdges();
-            edgeGUI.DoDraggedEdge();
-
-            // Mouse drag
-            DragSelection(new Rect(-5000, -5000, 10000, 10000));
-
-            // Context menu
-            ShowCustomContextMenu();
-            HandleMenuEvents();
-        }
-
-        #endregion
-
-        #region Customized context menu
-
-		void ShowCustomContextMenu()
-		{
-            // Only cares about single right click.
-			if (Event.current.type != EventType.MouseDown) return;
-            if (Event.current.button != 1) return;
-            if (Event.current.clickCount != 1) return;
-
-            // Consume this mouse event.
-			Event.current.Use();
-
-            // Record the current mouse position
-			m_contextMenuMouseDownPosition = Event.current.mousePosition;
-
-            // Build a context menu.
-            var menu = new GenericMenu();
-
-			if (selection.Count != 0)
-			{
-                // Node operations
-                menu.AddItem(new GUIContent("Cut"), false, ContextMenuCallback, "Cut");
-                menu.AddItem(new GUIContent("Copy"), false, ContextMenuCallback, "Copy");
-                menu.AddItem(new GUIContent("Duplicate"), false, ContextMenuCallback, "Duplicate");
-                menu.AddSeparator("");
-                menu.AddItem(new GUIContent("Delete"), false, ContextMenuCallback, "Delete");
-			}
-			else if (edgeGUI.edgeSelection.Count != 0)
-            {
-                // Edge operations
-                menu.AddItem(new GUIContent("Delete"), false, ContextMenuCallback, "Delete");
-            }
-            else
-            {
-                // Clicked on empty space.
-                NodeFactory.AddNodeItemsToMenu(menu, CreateMenuItemCallback);
-                menu.AddSeparator("");
-                menu.AddItem(new GUIContent("Paste"), false, ContextMenuCallback, "Paste");
-            }
-
-            menu.ShowAsContext();
-		}
-
-        void ContextMenuCallback(object data)
-        {
-            m_Host.SendEvent(EditorGUIUtility.CommandEvent((string)data));
-        }
-
-        void CreateMenuItemCallback(object data)
-        {
-            var type = data as Type;
-
-            // Create a game object.
-            var name = ObjectNames.NicifyVariableName(type.Name);
-            var gameObject = new GameObject(name);
-            var nodeRuntime = (Wiring.NodeBase)gameObject.AddComponent(type);
-            gameObject.transform.parent = ((Graph)graph).patch.transform;
-
-            // Add it to the graph.
-            var node = Node.Create(nodeRuntime);
-            node.position = new Rect((Vector2)m_contextMenuMouseDownPosition, Vector2.zero);
-            node.Dirty();
-            graph.AddNode(node);
-
-            // Make it undo-able.
-            Undo.RegisterCreatedObjectUndo(gameObject, "New Node");
         }
 
         #endregion
