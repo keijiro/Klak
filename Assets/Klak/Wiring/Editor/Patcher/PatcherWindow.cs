@@ -110,9 +110,20 @@ namespace Klak.Wiring.Patcher
                 return;
             }
 
-            _graphGUI.BeginGraphGUI(this, new Rect(0, 0, position.width, position.height));
+            // Layout constants/variables
+            const float kBarHeight = 17;
+            var width = position.width;
+            var height = position.height;
+
+            // Main graph area
+            _graphGUI.BeginGraphGUI(this, new Rect(0, 0, width, height - kBarHeight));
             _graphGUI.OnGraphGUI();
             _graphGUI.EndGraphGUI();
+
+            // Status bar
+            GUILayout.BeginArea(new Rect(0, height - kBarHeight, width, kBarHeight));
+            GUILayout.Label(_graph.patch.name);
+            GUILayout.EndArea();
         }
 
         #endregion
