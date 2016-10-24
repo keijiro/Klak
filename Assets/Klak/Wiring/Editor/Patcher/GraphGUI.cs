@@ -73,6 +73,8 @@ namespace Klak.Wiring.Patcher
         // This is a pretty hackish implementation. It exploits the standard
         // pasteboard APIs (unsupported) in a weird way.
 
+        int _pasteOffset;
+
         // Copy
         protected override void CopyNodesToPasteboard()
         {
@@ -87,6 +89,9 @@ namespace Klak.Wiring.Patcher
 
             // Recover the selection.
             UpdateUnitySelection();
+
+            // Reset the pasting offset counter.
+            _pasteOffset = 1;
         }
 
         // Paste
@@ -121,9 +126,16 @@ namespace Klak.Wiring.Patcher
             g.Invalidate();
             g.SyncWithPatch();
 
-            // Select the pasted nodes.
-            selection = instances.Select(i => graph[i.GetInstanceID().ToString()]).ToList();
-            UpdateUnitySelection();
+            // Select and offset the pasted nodes.
+            ClearSelection();
+            foreach (var i in instances)
+            {
+                var node = graph[i.GetInstanceID().ToString()];
+                node.position.position += Vector2.one * (_pasteOffset * kNodeGridSize * 2);
+                node.Dirty();
+                selection.Add(node);
+            }
+            _pasteOffset++;
         }
 
         // Duplicate
