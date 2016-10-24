@@ -25,6 +25,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using Graphs = UnityEditor.Graphs;
 
 namespace Klak.Wiring.Patcher
@@ -63,6 +64,76 @@ namespace Klak.Wiring.Patcher
             _selectionStack.Clear();
 
             UpdateUnitySelection();
+        }
+
+        #endregion
+
+        #region Pasteboard support
+
+        // This is a pretty hackish implementation. It exploits the standard
+        // pasteboard APIs (unsupported) in a weird way.
+
+        // Copy
+        protected override void CopyNodesToPasteboard()
+        {
+            // Do nothing if nothing is selected.
+            if (selection.Count == 0) return;
+
+            // Select the nodes in the scene hierarchy.
+            Selection.objects = selection.Select(n => ((Node)n).runtimeInstance.gameObject).ToArray();
+
+            // Copy them to the pasteboard.
+            Unsupported.CopyGameObjectsToPasteboard();
+
+            // Recover the selection.
+            UpdateUnitySelection();
+        }
+
+        // Paste
+        protected override void PasteNodesFromPasteboard()
+        {
+            var g = (Graph)graph;
+
+            // Create a paste point. It has two level depth.
+            var point1 = new GameObject("<PastePoint1>");
+            var point2 = new GameObject("<PastePoint2>");
+            point1.transform.parent = g.patch.transform;
+            point2.transform.parent = point1.transform;
+
+            // Select the paste point in the scene hierarchy.
+            Selection.activeGameObject = point2;
+
+            // Paste from the pasteboard.
+            Unsupported.PasteGameObjectsFromPasteboard();
+
+            // Point2 (placeholder) is not needed anymore.
+            DestroyImmediate(point2);
+
+            // Move pasted objects to the right position.
+            var instances = point1.GetComponentsInChildren<Wiring.NodeBase>();
+            foreach (var i in instances)
+                i.transform.parent = g.patch.transform;
+
+            // Point1 (group) is not needed anymore.
+            DestroyImmediate(point1);
+
+            // Resync the graph.
+            g.Invalidate();
+            g.SyncWithPatch();
+
+            // Select the pasted nodes.
+            selection = instances.Select(i => graph[i.GetInstanceID().ToString()]).ToList();
+            UpdateUnitySelection();
+        }
+
+        // Duplicate
+        protected override void DuplicateNodesThroughPasteboard()
+        {
+            // Do nothing if nothing is selected.
+            if (selection.Count == 0) return;
+
+            CopyNodesToPasteboard();
+            PasteNodesFromPasteboard();
         }
 
         #endregion
