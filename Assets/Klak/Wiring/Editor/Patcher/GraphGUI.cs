@@ -74,12 +74,17 @@ namespace Klak.Wiring.Patcher
             SelectNode(node);
 
             foreach (var slot in node.inputSlots)
-                LayoutSlot(slot, slot.title, false, true, true, Graphs.Styles.triggerPinIn);
+                LayoutSlot(slot, slot.title, false, true, true, Styles.pinIn);
 
             node.NodeUI(this);
 
             foreach (var slot in node.outputSlots)
-                LayoutSlot(slot, slot.title, true, false, true, Graphs.Styles.triggerPinOut);
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                LayoutSlot(slot, slot.title, true, false, true, Styles.pinOut);
+                EditorGUILayout.EndHorizontal();
+            }
 
             DragNodes();
         }
