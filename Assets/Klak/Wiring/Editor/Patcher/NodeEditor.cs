@@ -46,12 +46,14 @@ namespace Klak.Wiring.Patcher
 
         protected override void OnHeaderGUI()
         {
-            if (_editor == null) return;
+            var node = (Node)target;
+
+            if (_editor == null || !node.isValid) return;
 
             EditorGUILayout.Space();
 
             // Retrieve the header title (type name).
-            var instance = ((Node)target).runtimeInstance;
+            var instance = node.runtimeInstance;
             var title = ObjectNames.NicifyVariableName(instance.GetType().Name);
 
             // Show the header title.
@@ -65,10 +67,12 @@ namespace Klak.Wiring.Patcher
 
         public override void OnInspectorGUI()
         {
-            if (_editor == null) return;
+            var node = (Node)target;
+
+            if (_editor == null || !node.isValid) return;
 
             // Show the node name field.
-            var instance = ((Node)target).runtimeInstance;
+            var instance = node.runtimeInstance;
             instance.name = EditorGUILayout.TextField("Name", instance.name);
 
             EditorGUILayout.Space();
