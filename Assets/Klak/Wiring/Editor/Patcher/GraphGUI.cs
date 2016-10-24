@@ -162,10 +162,12 @@ namespace Klak.Wiring.Patcher
             else
             {
                 // Clicked on empty space.
-                NodeFactory.AddNodeItemsToMenu(menu, CreateMenuItemCallback);
-                menu.AddSeparator("");
                 menu.AddItem(new GUIContent("Paste"), false, ContextMenuCallback, "Paste");
             }
+
+            // "Create" menu
+            menu.AddSeparator("");
+            NodeFactory.AddNodeItemsToMenu(menu, CreateMenuItemCallback);
 
             menu.ShowAsContext();
 		}
@@ -190,6 +192,11 @@ namespace Klak.Wiring.Patcher
             node.position = new Rect((Vector2)m_contextMenuMouseDownPosition, Vector2.zero);
             node.Dirty();
             graph.AddNode(node);
+
+            // Select the new node.
+            ClearSelection();
+            selection.Add(node);
+            UpdateUnitySelection();
 
             // Make it undo-able.
             Undo.RegisterCreatedObjectUndo(gameObject, "New Node");
