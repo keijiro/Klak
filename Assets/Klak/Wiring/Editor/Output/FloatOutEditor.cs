@@ -23,82 +23,11 @@
 //
 using UnityEngine;
 using UnityEditor;
-using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Klak.Wiring
 {
     [CustomEditor(typeof(FloatOut))]
-    public class FloatOutEditor : Editor
+    public class FloatOutEditor : GenericOutEditor<float>
     {
-        SerializedProperty _target;
-        SerializedProperty _propertyName;
-
-        string[] _propertyList; // cached property list
-        Type _cachedType;       // cached property type info
-
-        void OnEnable()
-        {
-            _target = serializedObject.FindProperty("_target");
-            _propertyName = serializedObject.FindProperty("_propertyName");
-        }
-
-        void OnDisable()
-        {
-            _target = null;
-            _propertyName = null;
-            _propertyList = null;
-        }
-
-        // Check if a given property is capable of being a target.
-        bool IsTargetable(PropertyInfo info)
-        {
-            return info.GetSetMethod() != null &&
-                info.PropertyType == typeof(float);
-        }
-
-        // Cache properties of a given type if it's
-        // different from a previously given type.
-        void CachePropertyList(Type type)
-        {
-            if (_cachedType == type) return;
-
-            _propertyList = type.GetProperties().
-                Where(x => IsTargetable(x)).Select(x => x.Name).ToArray();
-
-            _cachedType = type;
-        }
-
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-            EditorGUILayout.PropertyField(_target);
-
-            // If the target is set...
-            if (_target.objectReferenceValue != null)
-            {
-                // Cache the property list of the target.
-                CachePropertyList(_target.objectReferenceValue.GetType());
-                // If there are suitable candidates...
-                if (_propertyList.Length > 0)
-                {
-                    // Show the drop-down list.
-                    var index = Array.IndexOf(_propertyList, _propertyName.stringValue);
-                    var newIndex = EditorGUILayout.Popup("Property", index, _propertyList);
-                    // Update the property if the selection was changed.
-                    if (index != newIndex)
-                        _propertyName.stringValue = _propertyList[newIndex];
-                }
-                else
-                    _propertyName.stringValue = ""; // reset on failure
-            }
-            else
-                _propertyName.stringValue = ""; // reset on failure
-
-            serializedObject.ApplyModifiedProperties();
-        }
     }
 }
