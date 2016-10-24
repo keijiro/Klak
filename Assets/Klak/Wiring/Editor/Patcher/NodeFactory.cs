@@ -24,72 +24,22 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using System.Reflection;
 using System;
 
 namespace Klak.Wiring.Patcher
 {
     // Class for creating new nodes
-    public class NodeFactory
+    public static class NodeFactory
     {
         #region Public methods
 
-        // Constructor
-        public NodeFactory()
+        // Add menu items to a given menu.
+        public static void AddNodeItemsToMenu(GenericMenu menu, GenericMenu.MenuFunction2 callback)
         {
-            EnumerateNodeTypes();
-        }
+            if (_nodeTypes == null) EnumerateNodeTypes();
 
-        // Create and open the "Create New Node" dropdown menu.
-        public void CreateNodeMenuGUI(Patch patch)
-        {
-            if (GUILayout.Button(_buttonText, EditorStyles.toolbarDropDown))
-            {
-                var menu = new GenericMenu();
-
-                foreach (var nodeType in _nodeTypes)
-                    menu.AddItem(
-                        new GUIContent(nodeType.label), false,
-                        OnMenuItem, new MenuItemData(patch, nodeType.type)
-                    );
-
-                var oy = EditorStyles.toolbar.fixedHeight - 2;
-                menu.DropDown(new Rect(1, oy, 1, 1));
-            }
-        }
-
-        #endregion
-
-        #region Menu item callback
-
-        // Menu item data
-        class MenuItemData
-        {
-            public Patch patch;
-            public Type type;
-
-            public MenuItemData(Patch patch, Type type)
-            {
-                this.patch = patch;
-                this.type = type;
-            }
-        }
-
-        // Menu item callback function
-        void OnMenuItem(object userData)
-        {
-            var data = (MenuItemData)userData;
-
-            // Create a game object.
-            var name = ObjectNames.NicifyVariableName(data.type.Name);
-            var gameObject = new GameObject(name);
-            var instance = gameObject.AddComponent(data.type);
-
-            // Add it to the patch.
-            data.patch.AddNodeInstance((Wiring.NodeBase)instance);
-
-            // Make it undo-able.
-            Undo.RegisterCreatedObjectUndo(gameObject, "New Node");
+            foreach (var nodeType in _nodeTypes)
+                menu.AddItem(nodeType.label, false, callback, nodeType.type);
         }
 
         #endregion
@@ -98,20 +48,20 @@ namespace Klak.Wiring.Patcher
 
         class NodeType
         {
-            public string label;
+            public GUIContent label;
             public Type type;
 
             public NodeType(string label, Type type)
             {
-                this.label = label;
+                this.label = new GUIContent(label);
                 this.type = type;
             }
         }
 
-        List<NodeType> _nodeTypes;
+        static List<NodeType> _nodeTypes;
 
         // Enumerate all the node types.
-        void EnumerateNodeTypes()
+        static void EnumerateNodeTypes()
         {
             _nodeTypes = new List<NodeType>();
 
@@ -132,17 +82,11 @@ namespace Klak.Wiring.Patcher
                     if (!label.StartsWith("Klak/Wiring/")) continue;
 
                     // Add this to the node type list.
-                    label = label.Substring(12);
+                    label = "Create/" + label.Substring(12);
                     _nodeTypes.Add(new NodeType(label, type));
                 }
             }
         }
-
-        #endregion
-
-        #region Other private members
-
-        static GUIContent _buttonText = new GUIContent("Create New Node");
 
         #endregion
     }

@@ -23,55 +23,37 @@
 //
 using UnityEngine;
 using UnityEditor;
+using Graphs = UnityEditor.Graphs;
 
 namespace Klak.Wiring.Patcher
 {
-    // Link between a pair of nodes
-    // Mainly used for caching link infromation.
-    public class NodeLink
+    // Custom editor styles
+    public static class Styles
     {
-        #region Public properties and methods
+        static GUIStyle _pinIn;
 
-        // Accessors
-        public Node fromNode     { get { return _fromNode;   } }
-        public Node toNode       { get { return _toNode;     } }
-        public Outlet fromOutlet { get { return _fromOutlet; } }
-        public Inlet toInlet     { get { return _toInlet;    } }
-
-        // Constructor
-        public NodeLink(
-            Node fromNode, Outlet fromOutlet,
-            Node toNode, Inlet toInlet
-        )
+        public static GUIStyle pinIn
         {
-            _fromNode = fromNode;
-            _fromOutlet = fromOutlet;
-            _toNode = toNode;
-            _toInlet = toInlet;
+            get {
+                if (_pinIn == null) {
+                    _pinIn = new GUIStyle(Graphs.Styles.triggerPinIn);
+                    _pinIn.stretchWidth = false;
+                }
+                return _pinIn;
+            }
         }
 
-        // Draw a line (curve) between the nodes.
-        public void DrawLine()
+        static GUIStyle _pinOut;
+
+        public static GUIStyle pinOut
         {
-            var p1 = (Vector3)_fromNode.windowPosition;
-            var p2 = (Vector3)_toNode.windowPosition;
-
-            p1 += (Vector3)_fromOutlet.buttonRect.center;
-            p2 += (Vector3)_toInlet.buttonRect.center;
-
-            EditorUtility.DrawCurve(p1, p2);
+            get {
+                if (_pinOut == null) {
+                    _pinOut = new GUIStyle(Graphs.Styles.triggerPinOut);
+                    _pinOut.stretchWidth = false;
+                }
+                return _pinOut;
+            }
         }
-
-        #endregion
-
-        #region Private fields
-
-        Node _fromNode;
-        Outlet _fromOutlet;
-
-        Node _toNode;
-        Inlet _toInlet;
-
-        #endregion
     }
 }

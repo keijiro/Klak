@@ -28,26 +28,24 @@ using System;
 
 namespace Klak.Wiring.Patcher
 {
-    public static class EditorUtility
+    public static class GUIUtility
     {
-        // Draw bezier line between two nodes.
-        public static void DrawCurve(Vector2 p1, Vector2 p2)
-        {
-            var l = Mathf.Min(Mathf.Abs(p1.y - p2.y), 150);
-            var p3 = p1 + new Vector2(l, 0);
-            var p4 = p2 - new Vector2(l, 0);
-            var c = new Color(0.9f, 0.9f, 0.9f);
-            Handles.DrawBezier(p1, p2, p3, p4, c, null, 3);
-        }
-
         // Clears the property drawer cache to avoid the
         // "SerializedObject of SerializedProperty has been Disposed" error.
         public static void ClearPropertyDrawerCache()
         {
-            // Call the internal function ScriptAttributeUtility.ClearGlobalCache
-            // in a very very bad way!! FIXME FIXME FIXME!!!
+            // Call internal function ScriptAttributeUtility.ClearGlobalCache.
             var t = Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor");
             var m = t.GetMethod("ClearGlobalCache", BindingFlags.NonPublic | BindingFlags.Static);
+            m.Invoke(null, null);
+        }
+
+        // Sends repaint request to all inspectors.
+        public static void RepaintAllInspectors()
+        {
+            // Call internal function InspectorWindow.RepaintAllInspectors.
+            var t = Type.GetType("UnityEditor.InspectorWindow,UnityEditor");
+            var m = t.GetMethod("RepaintAllInspectors", BindingFlags.NonPublic | BindingFlags.Static);
             m.Invoke(null, null);
         }
     }
