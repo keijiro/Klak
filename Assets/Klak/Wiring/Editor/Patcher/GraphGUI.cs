@@ -23,6 +23,7 @@
 //
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 using System;
 using Graphs = UnityEditor.Graphs;
 
@@ -31,6 +32,41 @@ namespace Klak.Wiring.Patcher
     // Specialized editor GUI class
     public class GraphGUI : Graphs.GraphGUI
     {
+        #region Node selection stack
+
+        // This is needed to keep selections over graph reconstruction (SyncWithPatch).
+        // We don't care about edge selection.
+
+        Stack<string> _selectionStack;
+
+        public void PushSelection()
+        {
+            if (_selectionStack == null)
+                _selectionStack = new Stack<string>();
+            else
+                _selectionStack.Clear();
+
+            foreach (Node node in selection)
+                _selectionStack.Push(node.name);
+        }
+
+        public void PopSelection()
+        {
+            selection.Clear();
+
+            while (_selectionStack.Count > 0)
+            {
+                var found = graph.GetNodeByName(_selectionStack.Pop());
+                if (found != null) selection.Add(found);
+            }
+
+            _selectionStack.Clear();
+
+            UpdateUnitySelection();
+        }
+
+        #endregion
+
         #region Customized GUI
 
         public override void NodeGUI(Graphs.Node node)

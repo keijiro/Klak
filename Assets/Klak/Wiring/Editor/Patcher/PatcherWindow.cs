@@ -57,13 +57,11 @@ namespace Klak.Wiring.Patcher
             if (_graph == null) Initialize(null);
 
             Undo.undoRedoPerformed += OnUndo;
-            EditorApplication.hierarchyWindowChanged += OnHierarchyWindowChanged;
         }
 
         void OnDisable()
         {
             Undo.undoRedoPerformed -= OnUndo;
-            EditorApplication.hierarchyWindowChanged -= OnHierarchyWindowChanged;
         }
 
         void OnUndo()
@@ -84,7 +82,7 @@ namespace Klak.Wiring.Patcher
             _hierarchyChanged = false;
         }
 
-        void OnHierarchyWindowChanged()
+        void OnHierarchyChange()
         {
             _hierarchyChanged = true;
         }
@@ -100,10 +98,15 @@ namespace Klak.Wiring.Patcher
             }
 
             // Synchronize the graph with the patch at this point.
-            _graph.SyncWithPatch();
+            if (!_graph.isValid)
+            {
+                _graphGUI.PushSelection();
+                _graph.SyncWithPatch();
+                _graphGUI.PopSelection();
+            }
 
             // Show the placeholder if the patch is not available.
-            if (_graph.patch == null)
+            if (!_graph.isValid)
             {
                 DrawPlaceholderGUI("No patch is selected for editing",
                     "You must select a patch in Hierarchy, then press 'Open Patcher' from Inspector.");

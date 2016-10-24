@@ -50,12 +50,14 @@ namespace Klak.Wiring.Patcher
             get { return _isEditing; }
         }
 
+        // Is the graph is actually available?
+        public bool isValid {
+            get { return _patch != null; }
+        }
+
         // Get source patch
         public Wiring.Patch patch {
-            get {
-                if (_patch == null) ForceSyncNow();
-                return _patch;
-            }
+            get { return _patch; }
         }
 
         // Create a specialized editor GUI for this graph.
