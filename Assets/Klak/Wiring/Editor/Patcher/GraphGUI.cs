@@ -48,7 +48,7 @@ namespace Klak.Wiring.Patcher
                 _selectionStack.Clear();
 
             foreach (Node node in selection)
-                _selectionStack.Push(node.name);
+                if (node != null) _selectionStack.Push(node.name);
         }
 
         public void PopSelection()
