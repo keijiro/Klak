@@ -194,6 +194,11 @@ namespace Klak.Wiring.Patcher
                 );
             }
 
+            // Workaround: If there is no node in the graph, put an empty
+            // window to avoid corruption due to a bug.
+            if (graph.nodes.Count == 0)
+                GUILayout.Window(0, new Rect(0, 0, 1, 1), delegate {}, "", "MiniLabel");
+
             m_Host.EndWindows();
 
             // Graph edges
