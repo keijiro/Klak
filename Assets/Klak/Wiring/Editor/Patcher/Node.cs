@@ -79,6 +79,7 @@ namespace Klak.Wiring.Patcher
             base.Dirty();
 
             // Update serialized position info if it's changed.
+            _serializedObject.Update();
             var spos = _serializedPosition.vector2Value;
             if (spos != position.position)
             {
