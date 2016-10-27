@@ -152,6 +152,14 @@ namespace Klak.Wiring.Patcher
 
         #region Customized GUI
 
+        public override Graphs.IEdgeGUI edgeGUI {
+            get {
+                if (m_EdgeGUI == null)
+                    m_EdgeGUI = new EdgeGUI { host = this };
+                return m_EdgeGUI;
+            }
+        }
+
         public override void NodeGUI(Graphs.Node node)
         {
             SelectNode(node);
