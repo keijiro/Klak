@@ -30,6 +30,7 @@ using Graphs = UnityEditor.Graphs;
 
 namespace Klak.Wiring.Patcher
 {
+    // Specialized edge drawer class
     public class EdgeGUI : Graphs.IEdgeGUI
     {
         #region Public members
@@ -37,7 +38,7 @@ namespace Klak.Wiring.Patcher
         public Graphs.GraphGUI host { get; set; }
         public List<int> edgeSelection { get; set; }
 
-        public EdgeGUI ()
+        public EdgeGUI()
         {
             edgeSelection = new List<int>();
         }
@@ -108,14 +109,14 @@ namespace Klak.Wiring.Patcher
         {
             if (allowStartDrag)
             {
-                // Start dragging for a new connection.
+                // Start dragging with a new connection.
                 _dragSourceSlot = slot;
                 Event.current.Use();
             }
 
             if (allowEndDrag && slot.edges.Count > 0)
             {
-                // Start dragging for modifying an existing connection.
+                // Start dragging to modify an existing connection.
                 _moveEdge = slot.edges[slot.edges.Count - 1];
                 _dragSourceSlot = _moveEdge.fromSlot;
                 _dropTarget = slot;
@@ -166,7 +167,7 @@ namespace Klak.Wiring.Patcher
             UnityEngine.GUIUtility.ExitGUI();
         }
 
-        public void EndDragging ()
+        public void EndDragging()
         {
             _dragSourceSlot = _dropTarget = null;
             _moveEdge = null;
