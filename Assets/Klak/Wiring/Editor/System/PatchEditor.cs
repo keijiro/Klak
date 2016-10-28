@@ -40,9 +40,8 @@ namespace Klak.Wiring
 
         public override void OnInspectorGUI()
         {
-            if (!EditorApplication.isPlaying)
-                if (GUILayout.Button("Open Patcher", "LargeButton"))
-                    Patcher.PatcherWindow.OpenPatch((Patch)target);
+            if (GUILayout.Button("Open Patcher", "LargeButton"))
+                Patcher.PatcherWindow.OpenPatch((Patch)target);
         }
     }
 }

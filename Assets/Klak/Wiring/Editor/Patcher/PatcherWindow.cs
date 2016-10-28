@@ -89,14 +89,6 @@ namespace Klak.Wiring.Patcher
 
         void OnGUI()
         {
-            // Do nothing while play mode.
-            if (isPlayMode)
-            {
-                DrawPlaceholderGUI("Patcher is not available in play mode",
-                    "You must exit play mode to resume editing.");
-                return;
-            }
-
             // Synchronize the graph with the patch at this point.
             if (!_graph.isValid)
             {
