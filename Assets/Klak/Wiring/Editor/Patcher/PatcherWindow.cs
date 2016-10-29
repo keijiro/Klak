@@ -89,6 +89,10 @@ namespace Klak.Wiring.Patcher
 
         void OnGUI()
         {
+            const float kBarHeight = 17;
+            var width = position.width;
+            var height = position.height;
+
             // Synchronize the graph with the patch at this point.
             if (!_graph.isValid)
             {
@@ -100,20 +104,19 @@ namespace Klak.Wiring.Patcher
             // Show the placeholder if the patch is not available.
             if (!_graph.isValid)
             {
-                DrawPlaceholderGUI("No patch is selected for editing",
-                    "You must select a patch in Hierarchy, then press 'Open Patcher' from Inspector.");
+                DrawPlaceholderGUI();
                 return;
             }
-
-            // Layout constants/variables
-            const float kBarHeight = 17;
-            var width = position.width;
-            var height = position.height;
 
             // Main graph area
             _graphGUI.BeginGraphGUI(this, new Rect(0, 0, width, height - kBarHeight));
             _graphGUI.OnGraphGUI();
             _graphGUI.EndGraphGUI();
+
+            // Clear selection on background click
+            var e = Event.current;
+            if (e.type == EventType.MouseDown && e.clickCount == 1)
+                _graphGUI.ClearSelection();
 
             // Status bar
             GUILayout.BeginArea(new Rect(0, height - kBarHeight, width, kBarHeight));
@@ -129,13 +132,6 @@ namespace Klak.Wiring.Patcher
         GraphGUI _graphGUI;
         bool _hierarchyChanged;
 
-        // Check if in play mode.
-        bool isPlayMode {
-            get {
-                return EditorApplication.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode;
-            }
-        }
-
         // Initializer (called from OpenPatch)
         void Initialize(Wiring.Patch patch)
         {
@@ -145,20 +141,20 @@ namespace Klak.Wiring.Patcher
         }
 
         // Draw the placeholder GUI.
-        void DrawPlaceholderGUI(string title, string comment)
+        void DrawPlaceholderGUI()
         {
             GUILayout.BeginVertical();
             GUILayout.FlexibleSpace();
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label(title, EditorStyles.largeLabel);
+            GUILayout.Label("No patch is selected for editing", EditorStyles.largeLabel);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label(comment, EditorStyles.miniLabel);
+            GUILayout.Label("You must select a patch in Hierarchy, then press 'Open Patcher' from Inspector.", EditorStyles.miniLabel);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
