@@ -50,7 +50,7 @@ namespace Klak.Math
                 get { return interpolationType != InterpolationType.Direct; }
             }
 
-            [SerializeField, Range(0.1f, 50)]
+            [SerializeField, Range(0.1f, 100)]
             float _interpolationSpeed = 10;
 
             public float interpolationSpeed {
@@ -68,6 +68,10 @@ namespace Klak.Math
 
             public static Config Direct {
                 get { return new Config(InterpolationType.Direct, 10); }
+            }
+
+            public static Config Quick {
+                get { return new Config(InterpolationType.DampedSpring, 50); }
             }
         }
 
