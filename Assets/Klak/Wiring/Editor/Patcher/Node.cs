@@ -57,6 +57,17 @@ namespace Klak.Wiring.Patcher
             get { return _runtimeInstance != null; }
         }
 
+        // Set color of node
+        public void SetColor(Graphs.Styles.Color newColor)
+        {
+            if (color == newColor) return;
+
+            color = newColor;
+            _serializedObject.Update();
+            _serializedColor.intValue = (int)newColor;
+            _serializedObject.ApplyModifiedProperties();
+        }
+
         #endregion
 
         #region Overridden virtual methods
@@ -98,6 +109,7 @@ namespace Klak.Wiring.Patcher
         // Serialized property accessor
         SerializedObject _serializedObject;
         SerializedProperty _serializedPosition;
+        SerializedProperty _serializedColor;
 
         // Initializer (called from the Create method)
         void Initialize(Wiring.NodeBase runtimeInstance)
@@ -108,10 +120,12 @@ namespace Klak.Wiring.Patcher
             _runtimeInstance = runtimeInstance;
             _serializedObject = new UnityEditor.SerializedObject(runtimeInstance);
             _serializedPosition = _serializedObject.FindProperty("_wiringNodePosition");
+            _serializedColor = _serializedObject.FindProperty("_wiringNodeColor");
 
             // Basic information
             name = runtimeInstance.GetInstanceID().ToString();
             position = new Rect(_serializedPosition.vector2Value, Vector2.zero);
+            color = (Graphs.Styles.Color)_serializedColor.intValue;
 
             // Slot initialization
             PopulateSlots();

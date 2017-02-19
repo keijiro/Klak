@@ -253,6 +253,13 @@ namespace Klak.Wiring.Patcher
                 menu.AddItem(new GUIContent("Duplicate"), false, ContextMenuCallback, "Duplicate");
                 menu.AddSeparator("");
                 menu.AddItem(new GUIContent("Delete"), false, ContextMenuCallback, "Delete");
+
+                menu.AddSeparator("");
+                var colors = Enum.GetValues(typeof(Graphs.Styles.Color)).Cast<Graphs.Styles.Color>().Distinct();
+                foreach (var color in colors)
+                {
+                    menu.AddItem(new GUIContent("Color/" + color), false, ContextMenuColorCallback, color);
+                }
 			}
 			else if (edgeGUI.edgeSelection.Count != 0)
             {
@@ -275,6 +282,16 @@ namespace Klak.Wiring.Patcher
         void ContextMenuCallback(object data)
         {
             m_Host.SendEvent(EditorGUIUtility.CommandEvent((string)data));
+        }
+
+        void ContextMenuColorCallback(object data)
+        {
+            var newColor = (Graphs.Styles.Color)data;
+
+            foreach (Node node in selection)
+            {
+                node.SetColor(newColor);
+            }
         }
 
         void CreateMenuItemCallback(object data)
