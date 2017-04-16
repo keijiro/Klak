@@ -35,6 +35,14 @@ Features
 
 - Klak.Wiring: node-based patching system
 
+Installation
+------------
+
+Download one of the unitypackage files from the [Releases] page and import it
+to a project.
+
+[Releases]: https://github.com/keijiro/Klak/releases
+
 Extensions
 ----------
 
