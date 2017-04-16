@@ -38,10 +38,18 @@ namespace Klak.Wiring
         #region Node I/O
 
         [Inlet]
-        public float emissionRate {
+        public float rateOverDistance {
             set {
                 if (!enabled || _particleSystem == null) return;
-                _emission.rate = new ParticleSystem.MinMaxCurve(value);
+                _emission.rateOverDistance = new ParticleSystem.MinMaxCurve(value);
+            }
+        }
+
+        [Inlet]
+        public float rateOverTime {
+            set {
+                if (!enabled || _particleSystem == null) return;
+                _emission.rateOverTime = new ParticleSystem.MinMaxCurve(value);
             }
         }
 
