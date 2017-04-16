@@ -1,10 +1,14 @@
 Klak
 ====
 
-![gif](http://49.media.tumblr.com/dfba0ff232f0bb76dc10a25026a888a2/tumblr_o0q7hmMfYU1qio469o1_400.gif)
-![gif](http://49.media.tumblr.com/c2a6d1359aefd3c205a89fec7561ebbd/tumblr_o0sabaXTwl1qio469o1_400.gif)
+![gif](http://i.imgur.com/9AfoxGo.gif)
+![gif](http://i.imgur.com/uCrvKNg.gif)
 
-![wiring](http://67.media.tumblr.com/cfd5688cb7b9bc7e6c50ae9fdc54c810/tumblr_o8xa29BTBw1qio469o1_540.gif)
+![gif](http://i.imgur.com/nmvtC5d.gif)
+![gif](http://i.imgur.com/LysINFA.gif)
+
+![gif](http://i.imgur.com/MsPX8pn.gif)
+![gif](http://i.imgur.com/WjQzVWz.gif)
 
 *Klak* is a collection of utilities that are made for creative coding with
 Unity.
