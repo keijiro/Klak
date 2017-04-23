@@ -13,17 +13,20 @@ namespace Klak.Wiring
         SerializedProperty _hue;
         SerializedProperty _saturation;
         SerializedProperty _brightness;
+        SerializedProperty _alpha;
         SerializedProperty _colorEvent;
 
         static GUIContent _textHue = new GUIContent("Initial Hue");
         static GUIContent _textSaturation = new GUIContent("Initial Saturation");
         static GUIContent _textBrightness = new GUIContent("Initial Brightness");
+        static GUIContent _textAlpha = new GUIContent("Initial Alpha");
 
         void OnEnable()
         {
             _hue = serializedObject.FindProperty("_hue");
             _saturation = serializedObject.FindProperty("_saturation");
             _brightness = serializedObject.FindProperty("_brightness");
+            _alpha = serializedObject.FindProperty("_alpha");
             _colorEvent = serializedObject.FindProperty("_colorEvent");
         }
 
@@ -34,6 +37,7 @@ namespace Klak.Wiring
             EditorGUILayout.PropertyField(_hue, _textHue);
             EditorGUILayout.PropertyField(_saturation, _textSaturation);
             EditorGUILayout.PropertyField(_brightness, _textBrightness);
+            EditorGUILayout.PropertyField(_alpha, _textAlpha);
 
             EditorGUILayout.Space();
 

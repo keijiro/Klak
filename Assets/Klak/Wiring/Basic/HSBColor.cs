@@ -19,6 +19,9 @@ namespace Klak.Wiring
         [SerializeField]
         float _brightness = 1;
 
+        [SerializeField]
+        float _alpha = 1;
+
         #endregion
 
         #region Node I/O
@@ -47,6 +50,14 @@ namespace Klak.Wiring
             }
         }
 
+        [Inlet]
+        public float alpha {
+            set {
+                _alpha = value;
+                if (enabled) UpdateAndInvoke();
+            }
+        }
+
         [SerializeField, Outlet]
         ColorEvent _colorEvent = new ColorEvent();
 
@@ -56,7 +67,10 @@ namespace Klak.Wiring
 
         void UpdateAndInvoke()
         {
-            _colorEvent.Invoke(Color.HSVToRGB(_hue, _saturation, _brightness));
+            var hue = _hue - Mathf.Floor(_hue);
+            var c = Color.HSVToRGB(hue, _saturation, _brightness);
+            c.a = _alpha;
+            _colorEvent.Invoke(c);
         }
 
         #endregion
