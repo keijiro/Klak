@@ -82,7 +82,7 @@ namespace Klak.Wiring
 
         void Start()
         {
-            _floatValue = new FloatInterpolator(0, _interpolator);
+            _floatValue = new FloatInterpolator(EvalResponse(), _interpolator);
         }
 
         void Update()

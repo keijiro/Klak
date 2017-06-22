@@ -92,7 +92,7 @@ namespace Klak.Math
         public FloatInterpolator(float initialValue, Config config)
         {
             this.config = config;
-            currentValue = targetValue =initialValue;
+            currentValue = targetValue = initialValue;
             _velocity = 0;
         }
 
