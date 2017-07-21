@@ -44,6 +44,11 @@ namespace Klak.Wiring.Patcher
             DestroyImmediate(_editor);
         }
 
+        public override bool RequiresConstantRepaint()
+        {
+            return _editor.RequiresConstantRepaint();
+        }
+
         protected override void OnHeaderGUI()
         {
             var node = (Node)target;
