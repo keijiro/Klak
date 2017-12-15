@@ -46,7 +46,7 @@ namespace Klak.Wiring.Patcher
 
         public override bool RequiresConstantRepaint()
         {
-            return _editor.RequiresConstantRepaint();
+            return _editor != null ? _editor.RequiresConstantRepaint() : false;
         }
 
         protected override void OnHeaderGUI()
