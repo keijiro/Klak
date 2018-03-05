@@ -58,6 +58,9 @@ namespace Klak.Wiring
         public class FloatEvent : UnityEvent<float> {}
 
         [Serializable]
+        public class IntegerEvent: UnityEvent<int> {}
+
+        [Serializable]
         public class Vector3Event : UnityEvent<Vector3> {}
 
         [Serializable]
