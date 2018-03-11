@@ -1,0 +1,13 @@
+{
+    "name": "Klak.Test",
+    "references": [
+        "Klak.Extensions",
+        "Klak.Math",
+        "Klak.Motion",
+        "Klak.Wiring"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

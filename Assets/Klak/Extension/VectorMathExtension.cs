@@ -26,7 +26,7 @@ using UnityEngine;
 namespace Klak.VectorMathExtension
 {
     /// Extension methods for Vector4
-    static class Vector4Extension
+    public static class Vector4Extension
     {
         public static Quaternion ToQuaternion(this Vector4 v)
         {
@@ -41,7 +41,7 @@ namespace Klak.VectorMathExtension
     }
 
     /// Extension methods for Quaternion
-    static class QuaternionExtension
+    public static class QuaternionExtension
     {
         public static Vector4 ToVector4(this Quaternion q)
         {

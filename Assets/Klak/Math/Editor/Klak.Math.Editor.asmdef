@@ -1,0 +1,12 @@
+{
+    "name": "Klak.Math.Editor",
+    "references": [
+        "Klak.Math"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

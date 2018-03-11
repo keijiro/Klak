@@ -27,7 +27,7 @@ using Klak.VectorMathExtension;
 namespace Klak.Math
 {
     /// Exponential interpolation
-    static class ETween
+    public static class ETween
     {
         #region Static Functions
 
@@ -66,7 +66,7 @@ namespace Klak.Math
     }
 
     /// Interpolation with critically damped spring model
-    struct DTween
+    public struct DTween
     {
         #region Static Functions
 
@@ -154,7 +154,7 @@ namespace Klak.Math
     }
 
     /// Interpolation with critically damped spring model
-    struct DTweenVector2
+    public struct DTweenVector2
     {
         public Vector2 position;
         public Vector2 velocity;
