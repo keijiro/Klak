@@ -39,7 +39,7 @@ namespace Klak.Wiring
         Gradient _gradient = new Gradient();
 
         [SerializeField]
-        [ColorUsage(true, true, 0, 16, 0.125f, 3)]
+        [ColorUsage(true, true)]
         Color[] _colorArray = new Color[2] { Color.black, Color.white };
 
         #endregion
