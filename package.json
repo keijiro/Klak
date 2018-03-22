@@ -1,0 +1,8 @@
+{
+    "name": "jp.keijiro.klak",
+    "displayName": "Klak",
+    "version": "0.0.1",
+    "unity": "2018.1",
+    "description": "Klak is a collection of scripts for creative coding with Unity.",
+    "dependencies": { }
+}

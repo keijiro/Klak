@@ -1,0 +1,12 @@
+{
+    "name": "jp.keijiro.klak.Editor",
+    "references": [
+        "jp.keijiro.klak.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
