@@ -34,17 +34,17 @@ namespace Klak.Wiring
     [CustomEditor (typeof(SceneOut))]
     public class SceneOutEditor : Editor
     {
-        SerializedProperty _scene;
+        SerializedProperty _sceneId;
 
         void OnEnable ()
         {
-            _scene = serializedObject.FindProperty ("_scene");
+            _sceneId = serializedObject.FindProperty ("_sceneId");
         }
 
         public override void OnInspectorGUI ()
         {
             serializedObject.Update ();
-            EditorGUILayout.PropertyField (_scene);
+            EditorGUILayout.PropertyField (_sceneId);
             serializedObject.ApplyModifiedProperties ();
         }
     }

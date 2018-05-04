@@ -23,7 +23,6 @@
 //
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEditor;
 using System.Reflection;
 
 namespace Klak.Wiring
@@ -34,7 +33,7 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        SceneAsset _scene;
+        int _sceneId;
 
         #endregion
 
@@ -45,9 +44,9 @@ namespace Klak.Wiring
         public void Bang ()
         {
             if (_scene != null) {
-                Scene scene = SceneManager.GetSceneByName (_scene.name);
+                Scene scene = SceneManager.GetSceneAt (_sceneId);
                 if (!scene.isLoaded) {
-                    SceneManager.LoadScene (_scene.name);
+                    SceneManager.LoadScene (_sceneId);
                 }
             }
         }
