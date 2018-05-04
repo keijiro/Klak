@@ -43,12 +43,7 @@ namespace Klak.Wiring
         [Inlet]
         public void Bang ()
         {
-            if (_scene != null) {
-                Scene scene = SceneManager.GetSceneAt (_sceneId);
-                if (!scene.isLoaded) {
-                    SceneManager.LoadScene (_sceneId);
-                }
-            }
+            SceneManager.LoadScene (_sceneId);
         }
 
         #endregion
