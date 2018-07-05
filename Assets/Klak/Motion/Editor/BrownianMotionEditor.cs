@@ -30,6 +30,7 @@ namespace Klak.Motion
     [CustomEditor(typeof(BrownianMotion))]
     public class BrownianMotionEditor : Editor
     {
+        SerializedProperty _randomSeed;
         SerializedProperty _enablePositionNoise;
         SerializedProperty _enableRotationNoise;
         SerializedProperty _positionFrequency;
@@ -41,6 +42,7 @@ namespace Klak.Motion
         SerializedProperty _positionFractalLevel;
         SerializedProperty _rotationFractalLevel;
 
+        static GUIContent _textRandomSeed = new GUIContent("Random Seed");
         static GUIContent _textPositionNoise = new GUIContent("Position Noise");
         static GUIContent _textRotationNoise = new GUIContent("Rotation Noise");
         static GUIContent _textFrequency = new GUIContent("Frequency");
@@ -50,6 +52,7 @@ namespace Klak.Motion
 
         void OnEnable()
         {
+            _randomSeed = serializedObject.FindProperty("_randomSeed");
             _enablePositionNoise = serializedObject.FindProperty("_enablePositionNoise");
             _enableRotationNoise = serializedObject.FindProperty("_enableRotationNoise");
             _positionFrequency = serializedObject.FindProperty("_positionFrequency");
@@ -65,6 +68,8 @@ namespace Klak.Motion
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+
+            EditorGUILayout.PropertyField(_randomSeed, _textRandomSeed);
 
             EditorGUILayout.PropertyField(_enablePositionNoise, _textPositionNoise);
 
