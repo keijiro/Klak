@@ -31,6 +31,8 @@ namespace Klak.Motion
     {
         #region Editable Properties
 
+        [SerializeField] int _randomSeed = 0;
+
         [SerializeField] bool _enablePositionNoise = true;
         [SerializeField] bool _enableRotationNoise = true;
 
@@ -122,6 +124,7 @@ namespace Klak.Motion
 
         void Start()
         {
+            Random.InitState(_randomSeed);
             _time = new float[6];
             Rehash();
         }
