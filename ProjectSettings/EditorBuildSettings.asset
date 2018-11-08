@@ -7,3 +7,5 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Samples/BrownianMotion.unity
+    guid: c41be083a4b384075bffc207a039e7f5
+  m_configObjects: {}
