@@ -1,0 +1,11 @@
+{
+    "name": "Klak.Motion",
+    "references": [
+        "Klak.Extensions",
+        "Klak.Math"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

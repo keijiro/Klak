@@ -1,0 +1,10 @@
+{
+    "name": "Klak.Wiring",
+    "references": [
+        "Klak.Math"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
