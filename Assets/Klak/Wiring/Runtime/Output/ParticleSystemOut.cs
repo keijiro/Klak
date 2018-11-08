@@ -31,7 +31,7 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        ParticleSystem _particleSystem;
+        ParticleSystem _particleSystem = null;
 
         #endregion
 

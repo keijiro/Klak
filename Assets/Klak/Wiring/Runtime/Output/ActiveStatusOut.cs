@@ -32,10 +32,10 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        Component _targetComponent;
+        Component _targetComponent = null;
 
         [SerializeField]
-        GameObject _targetGameObject;
+        GameObject _targetGameObject = null;
 
         #endregion
 

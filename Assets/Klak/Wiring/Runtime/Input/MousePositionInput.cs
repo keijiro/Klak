@@ -32,7 +32,7 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        FloatInterpolator.Config _interpolator;
+        FloatInterpolator.Config _interpolator = null;
 
         #endregion
 

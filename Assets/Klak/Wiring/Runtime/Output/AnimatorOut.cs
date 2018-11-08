@@ -31,10 +31,10 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        Animator _animator;
+        Animator _animator = null;
 
         [SerializeField]
-        string _changeStateTo;
+        string _changeStateTo = null;
 
         #endregion
 

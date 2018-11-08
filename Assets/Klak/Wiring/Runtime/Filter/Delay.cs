@@ -34,7 +34,7 @@ namespace Klak.Wiring
         public enum TimeUnit { Second, Frame }
 
         [SerializeField]
-        TimeUnit _timeUnit;
+        TimeUnit _timeUnit = TimeUnit.Second;
 
         [SerializeField]
         float _interval = 1;

@@ -47,7 +47,7 @@ namespace Klak.Wiring
         float _value4 = 3.0f;
 
         [SerializeField]
-        FloatInterpolator.Config _interpolator;
+        FloatInterpolator.Config _interpolator = null;
 
         [SerializeField]
         bool _sendOnStartUp = false;

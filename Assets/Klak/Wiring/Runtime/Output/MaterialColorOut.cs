@@ -32,10 +32,10 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        Renderer _target;
+        Renderer _target = null;
 
         [SerializeField]
-        string _propertyName;
+        string _propertyName = null;
 
         #endregion
 

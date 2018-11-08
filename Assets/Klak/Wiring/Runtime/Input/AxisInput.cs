@@ -35,7 +35,7 @@ namespace Klak.Wiring
         string _axisName = "Horizontal";
 
         [SerializeField]
-        FloatInterpolator.Config _interpolator;
+        FloatInterpolator.Config _interpolator = null;
 
         #endregion
 

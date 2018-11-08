@@ -32,7 +32,7 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        VoidEvent _event;
+        VoidEvent _event = null;
 
         #endregion
 

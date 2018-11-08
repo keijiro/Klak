@@ -31,7 +31,7 @@ namespace Klak.Wiring
         #region Editable properties
 
         [SerializeField]
-        Transform _targetTransform;
+        Transform _targetTransform = null;
 
         [SerializeField]
         bool _addToOriginal = true;
