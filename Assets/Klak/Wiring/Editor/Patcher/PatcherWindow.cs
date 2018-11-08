@@ -169,7 +169,7 @@ namespace Klak.Wiring.Patcher
         // causes an exception in UnityEditor.Graphs. To make it compatible
         // with the previous version of the .NET runtime (surprisingly, it
         // always returns true without any meaningful process), we overwrite
-        // usrCompatibleTypeConversion (private variable) using reflection.
+        // useCompatibleTypeConversion (private variable) using reflection.
         static void ForceTypeConverterCompatibility()
         {
         #if UNITY_EDITOR && (NET_4_6 || NET_STANDARD_2_0)
