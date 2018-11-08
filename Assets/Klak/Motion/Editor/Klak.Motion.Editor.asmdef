@@ -1,0 +1,12 @@
+{
+    "name": "Klak.Motion.Editor",
+    "references": [
+        "Klak.Motion"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

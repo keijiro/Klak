@@ -52,6 +52,8 @@ namespace Klak.Wiring.Patcher
 
         void OnEnable()
         {
+            ForceTypeConverterCompatibility();
+
             // Initialize if it hasn't been initialized.
             // (this could be happened when a window layout is loaded)
             if (_graph == null) Initialize(null);
@@ -160,6 +162,23 @@ namespace Klak.Wiring.Patcher
 
             GUILayout.FlexibleSpace();
             GUILayout.EndVertical();
+        }
+
+        // Workaround for a TypeConverter compatibility issue.
+        // We found that the new behavior of TypeConverter.IsValid in .NET 4.x
+        // causes an exception in UnityEditor.Graphs. To make it compatible
+        // with the previous version of the .NET runtime (surprisingly, it
+        // always returns true without any meaningful process), we overwrite
+        // useCompatibleTypeConversion (private variable) using reflection.
+        static void ForceTypeConverterCompatibility()
+        {
+        #if UNITY_EDITOR && (NET_4_6 || NET_STANDARD_2_0)
+            typeof(System.ComponentModel.TypeConverter).
+                GetField("useCompatibleTypeConversion",
+                         System.Reflection.BindingFlags.NonPublic |
+                         System.Reflection.BindingFlags.Static).
+                    SetValue(null, true);
+        #endif
         }
 
         #endregion

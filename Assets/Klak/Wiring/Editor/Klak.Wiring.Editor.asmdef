@@ -1,0 +1,12 @@
+{
+    "name": "Klak.Wiring.Editor",
+    "references": [
+        "Klak.Wiring"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
