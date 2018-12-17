@@ -179,7 +179,7 @@ namespace Klak.Math
     }
 
     /// Interpolation with critically damped spring model
-    struct DTweenVector3
+    public struct DTweenVector3
     {
         public Vector3 position;
         public Vector3 velocity;
@@ -204,7 +204,7 @@ namespace Klak.Math
     }
 
     /// Interpolation with critically damped spring model
-    struct DTweenQuaternion
+    public struct DTweenQuaternion
     {
         public Quaternion rotation;
         public Vector4 velocity;
