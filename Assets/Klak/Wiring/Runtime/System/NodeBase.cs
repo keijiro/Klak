@@ -51,6 +51,9 @@ namespace Klak.Wiring
         [SerializeField, HideInInspector]
         Vector2 _wiringNodePosition = uninitializedNodePosition;
 
+        [SerializeField, HideInInspector]
+        int _wiringNodeColor = uninitializedNodeColor;
+
         [Serializable]
         public class VoidEvent : UnityEvent {}
 
@@ -68,6 +71,10 @@ namespace Klak.Wiring
 
         static public Vector2 uninitializedNodePosition {
             get { return new Vector2(-1000, -1000); }
+        }
+
+        static public int uninitializedNodeColor {
+            get { return 0; }
         }
     }
 }
