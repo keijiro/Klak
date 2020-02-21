@@ -88,12 +88,18 @@ namespace Klak.Wiring.Patcher
         [NonSerialized] Wiring.Patch _patch;
         int _patchInstanceID;
         bool _isEditing;
+#if UNITY_2018_3_OR_NEWER
+        UnityEngine.SceneManagement.Scene _scene;
+#endif
 
         // Initializer (called from the Create method)
         void Initialize(Wiring.Patch patch)
         {
             hideFlags = HideFlags.HideAndDontSave;
             _patchInstanceID = patch != null ? patch.GetInstanceID() : 0;
+#if UNITY_2018_3_OR_NEWER
+            _scene = patch != null ? patch.gameObject.scene : default(UnityEngine.SceneManagement.Scene);
+#endif
         }
 
         // Synchronize with the source patch immediately.
@@ -107,12 +113,33 @@ namespace Klak.Wiring.Patcher
             _patch = null;
 
             // Retrieve the patch object based on the instance ID.
-            foreach (var obj in GameObject.FindObjectsOfType<Wiring.Patch>())
+#if UNITY_2018_3_OR_NEWER
+            if (UnityEditor.SceneManagement.EditorSceneManager.IsPreviewScene(_scene))
             {
-                if (obj.GetInstanceID() == _patchInstanceID)
+                foreach (var go in _scene.GetRootGameObjects())
                 {
-                    _patch = obj;
-                    break;
+                    foreach (var obj in go.GetComponentsInChildren<Wiring.Patch>())
+                    {
+                        if (obj.GetInstanceID() == _patchInstanceID)
+                        {
+                            _patch = obj;
+                            break;
+                        }
+                    }
+                    if (_patch != null)
+                        break;
+                }
+            }
+            else
+#endif
+            {
+                foreach (var obj in GameObject.FindObjectsOfType<Wiring.Patch>())
+                {
+                    if (obj.GetInstanceID() == _patchInstanceID)
+                    {
+                        _patch = obj;
+                        break;
+                    }
                 }
             }
 
@@ -162,6 +189,10 @@ namespace Klak.Wiring.Patcher
                 // Send a repaint request to the inspector window because
                 // the inspector is shown at this point in most cases.
                 GUIUtility.RepaintAllInspectors();
+
+                // Record prefab property modifications if this graph is part of prefab instance
+                if (PrefabUtility.IsPartOfPrefabInstance(fromNodeRuntime))
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(fromNodeRuntime);
             }
 
             return edge;
@@ -181,6 +212,10 @@ namespace Klak.Wiring.Patcher
 
                 // Remove the serialized event.
                 ConnectionTools.DisconnectSlots(fromSlot, toSlot);
+
+                // Record prefab property modifications if this graph is part of prefab instance
+                if (PrefabUtility.IsPartOfPrefabInstance(fromNodeRuntime))
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(fromNodeRuntime);
             }
 
             base.RemoveEdge(edge);
