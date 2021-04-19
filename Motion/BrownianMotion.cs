@@ -52,6 +52,11 @@ namespace Klak.Motion
 
         #region Public Properties And Methods
 
+        public int randomSeed {
+            get { return _randomSeed; }
+            set { _randomSeed = value; }
+		}
+
         public bool enablePositionNoise {
             get { return _enablePositionNoise; }
             set { _enablePositionNoise = value; }
